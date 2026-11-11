@@ -1383,7 +1383,7 @@
     // 寄宫 sits in its own centre column so the stem lines up with 九星/天盘 (row 2)
     // or 八门/地盘 (row 3).
     const jiField = (p, key, slot, name, marks = '') => !p[key] ? '' : `<span class="qimen-glyph qimen-ji qimen-ji-${slot}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,p[key])}"${qimenWxAttr(key,p[key])} data-qimen-display="${key}">${p[key]}</span></span><span class="qimen-state" data-qimen-edit="${key}State" data-qimen-display="${key}State">${p[key + 'State'] || ''}</span><select class="qimen-picker" data-qimen-field="${key}" aria-label="${p.name}宫${name}">${makeOptions(baziStems,p[key])}</select></span>`;
-    const emblem = `<div class="qimen-emblem" aria-hidden="true"><img src="../assets/library/qimen_bagua.svg" alt="" /></div>`;
+    const emblem = `<div class="qimen-emblem" aria-hidden="true"><img src="assets/library/qimen_bagua.svg" alt="" /></div>`;
     // 旬首是地盘上的那个六仪；值使是当前落宫的八门。
     const xunShouStem = (qimenMeta.xunShou || '').slice(-1);
     // 阳遁 1/8/3/4 宫为内盘，阴遁 9/2/7/6 宫为内盘，内盘连中五宫一起圈住。
