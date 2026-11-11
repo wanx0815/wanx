@@ -471,7 +471,7 @@ input[type="range"] { width: 100%; accent-color: #c9a76c; height: 13px; }
 .qimen-ji-heaven { grid-column: 2; grid-row: 2; }
 .qimen-ji-earth { grid-column: 2; grid-row: 3; }
 .qimen-ji { align-self: center; }
-@font-face { font-family: "ShouJin"; src: url("assets/fonts/shoujin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "ShouJin"; src: url("fonts/shoujin.woff2") format("woff2"); font-display: swap; }
 .qimen-value { font-family: "Microsoft YaHei","Segoe UI",system-ui,sans-serif; font-size: clamp(12px, 5.04cqw, 27.6px); line-height: 1.05; color: #ead8ac; white-space: nowrap; }
 html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦金加粗版 (非商业使用)","STSong",serif; }
 .qimen-state { font-size: clamp(7.5px, 2.075cqw, 13px); line-height: 1; color: #8f9c8a; }
@@ -769,8 +769,8 @@ html[data-theme="paper"] .font-switch { border-left-color: var(--line); }
 /* ===== 主题变量 ===== */
 html[data-theme="ink"] {
   --bg: #203e4f; --panel: #274a5c; --panel-2: #31586c;
-  --line: rgba(120,178,200,.26); --line-strong: rgba(120,178,200,.44);
-  --gold: #d9b875; --gold-soft: #9c8357; --text: #e6e2d5; --muted: #93aebd;
+  --line: rgba(232,240,248,.26); --line-strong: rgba(232,240,248,.46);
+  --gold: #d9b875; --gold-soft: #9c8357; --text: #e6e2d5; --muted: #a8bccd;
 }
 html[data-theme="cinnabar"] {
   --bg: #502525; --panel: #5a2c2c; --panel-2: #663434;
@@ -790,30 +790,30 @@ html[data-theme="paper"] {
 
 /* ===== 玄青 ===== */
 html[data-theme="ink"] .app-shell { background: radial-gradient(circle at 48% 42%, rgba(64,132,168,.22), transparent 42%), #203e4f; }
-html[data-theme="ink"] .topbar { background: #274a5c; border-bottom-color: rgba(120,178,200,.26); }
+html[data-theme="ink"] .topbar { background: #274a5c; border-bottom-color: rgba(232,240,248,.26); }
 html[data-theme="ink"] .stage-surface {
   background: radial-gradient(ellipse at 50% 45%, rgba(64,132,168,.22), transparent 60%), linear-gradient(145deg,#25465a,#1d3545 55%,#214050);
-  border-color: rgba(120,178,200,.44);
+  border-color: rgba(232,240,248,.44);
   box-shadow: 0 20px 70px rgba(0,0,0,.40), inset 0 0 70px rgba(0,0,0,.22);
 }
-html[data-theme="ink"] .stage-surface::before { border-color: rgba(120,178,200,.26); }
-html[data-theme="ink"] .stage-surface::after { background: linear-gradient(90deg,transparent,rgba(120,178,200,.44),transparent); box-shadow: none; }
+html[data-theme="ink"] .stage-surface::before { border-color: rgba(232,240,248,.26); }
+html[data-theme="ink"] .stage-surface::after { background: linear-gradient(90deg,transparent,rgba(232,240,248,.44),transparent); box-shadow: none; }
 html[data-theme="ink"] .stage-backdrop-grid {
   opacity: .12;
-  background-image: linear-gradient(rgba(120,178,200,.26) 1px, transparent 1px), linear-gradient(90deg, rgba(120,178,200,.26) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(232,240,248,.26) 1px, transparent 1px), linear-gradient(90deg, rgba(232,240,248,.26) 1px, transparent 1px);
 }
 html[data-theme="ink"] .qimen-cell,
 html[data-theme="ink"] .bazi-cell,
-html[data-theme="ink"] .hex-card { background: linear-gradient(145deg,rgba(46,74,92,.96),rgba(32,54,70,.97)); border-color: rgba(120,178,200,.30); }
-html[data-theme="ink"] .qimen-cell:hover { background: linear-gradient(145deg,rgba(58,88,106,.70),rgba(38,62,78,.94)); border-color: rgba(120,178,200,.55); }
-html[data-theme="ink"] .qimen-cell.center-cell { background: linear-gradient(145deg,rgba(52,82,100,.96),rgba(34,58,74,.97)); border-color: rgba(120,178,200,.44); }
-html[data-theme="ink"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(44,70,86,.62),rgba(30,50,64,.90)); border-color: rgba(120,178,200,.26); }
+html[data-theme="ink"] .hex-card { background: linear-gradient(145deg,rgba(46,74,92,.96),rgba(32,54,70,.97)); border-color: rgba(232,240,248,.30); }
+html[data-theme="ink"] .qimen-cell:hover { background: linear-gradient(145deg,rgba(58,88,106,.70),rgba(38,62,78,.94)); border-color: rgba(232,240,248,.55); }
+html[data-theme="ink"] .qimen-cell.center-cell { background: linear-gradient(145deg,rgba(52,82,100,.96),rgba(34,58,74,.97)); border-color: rgba(232,240,248,.44); }
+html[data-theme="ink"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(44,70,86,.62),rgba(30,50,64,.90)); border-color: rgba(232,240,248,.26); }
 html[data-theme="ink"] .control-panel,
-html[data-theme="ink"] .case-drawer { background: linear-gradient(180deg,#274a5c,#31586c); border-color: rgba(120,178,200,.26); }
+html[data-theme="ink"] .case-drawer { background: linear-gradient(180deg,#274a5c,#31586c); border-color: rgba(232,240,248,.26); }
 html[data-theme="ink"] .bazi-date-dialog,
 html[data-theme="ink"] .qimen-state-editor,
-html[data-theme="ink"] .toast { background: linear-gradient(155deg,#274a5c,#31586c); border-color: rgba(120,178,200,.30); }
-html[data-theme="ink"] .dark-select { background: #274a5c; border-color: rgba(120,178,200,.26); }
+html[data-theme="ink"] .toast { background: linear-gradient(155deg,#274a5c,#31586c); border-color: rgba(232,240,248,.30); }
+html[data-theme="ink"] .dark-select { background: #274a5c; border-color: rgba(232,240,248,.26); }
 
 /* ===== 绛砂 ===== */
 html[data-theme="cinnabar"] .app-shell { background: radial-gradient(circle at 48% 42%, rgba(172,68,62,.20), transparent 42%), #502525; }
