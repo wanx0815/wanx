@@ -1,7 +1,0 @@
-Bagua Earlier Heaven Octagon (qimen_bagua.svg)
-Source:  https://commons.wikimedia.org/wiki/File:Yinyang_Bagua_Earlier_Heaven_Octagon.svg
-Author:  Vuccala
-License: CC0 1.0 Universal (public domain dedication)
-         https://creativecommons.org/publicdomain/zero/1.0/
-Changes: fills/strokes recolored to gold (#d8bb85) and the plate made
-         transparent for the dark demo theme. No geometry changed.
