@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>命理可视化工作台｜确定性动效演示</title>
+  <link rel="stylesheet" href="./demo.css" />
+  <script>
+    try {
+      var initialTheme = localStorage.getItem('motion.theme.v1') || 'paper';
+      // 自定义配色与预设都落在 paper 作用域，未识别的值一律按 paper 兜底。
+      var baseTheme = initialTheme === 'ink' || initialTheme === 'cinnabar' ? initialTheme : 'paper';
+      document.documentElement.dataset.theme = baseTheme;
+      document.documentElement.style.colorScheme = baseTheme === 'paper' ? 'light' : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'paper';
+      document.documentElement.style.colorScheme = 'light';
+    }
+  </script>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark"><span>玄</span></div>
+        <div>
+          <div class="brand-title">命理可视化工作台</div>
+          <div class="brand-subtitle">DETERMINISTIC MOTION LAB <i></i> 原型演示 v0.8.0 · TEMPLATE UPDATE</div>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <span class="case-label">命理工作台</span>
+        <span class="divider-dot"></span>
+        <span class="save-state"><b></b> 本地演示</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="quiet-button" id="clearAllBtn" title="清除全部视觉效果">恢复总览</button>
+        <button class="primary-button" id="presentationBtn"><span class="button-icon">◫</span> 展示模式</button>
+      </div>
+    </header>
+
+    <main class="workspace" id="workspace">
+      <section class="stage-column">
+        <div class="stage-toolbar">
+          <div class="template-switch" role="tablist" aria-label="动效锚点样例模板">
+            <button class="template-tab" data-template="bazi" role="tab">四柱</button>
+            <button class="template-tab active" data-template="qimen" role="tab">奇门</button>
+            <button class="template-tab" data-template="meihua" role="tab">梅花</button>
+          </div>
+          <div class="stage-toolbar-right">
+            <button class="case-toggle" id="caseToggle" type="button" aria-expanded="false" aria-controls="caseDrawer">案例</button>
+            <button class="icon-button" id="panelToggle" aria-label="显示或隐藏动效控制面板" title="隐藏/显示控制面板">☷</button>
+          </div>
+        </div>
+
+        <div class="stage-viewport">
+          <div class="stage-board-slot">
+          <div class="stage-board" id="stageBoard" data-motion-stage>
+            <div class="stage-surface" data-motion-stage-surface id="stageSurface">
+              <div class="stage-backdrop-grid"></div>
+
+              <div class="stage-heading">
+                <div class="eyebrow">VISUAL SYSTEM / PREVIEW</div>
+                <div class="stage-title" id="stageTitle">九宫关系演示</div>
+                <div class="stage-subtitle" id="stageSubtitle">固定宫位 · 原位突出 · 关系由操作者指定</div>
+              </div>
+              <div class="board-content" id="boardContent"></div>
+              <div class="stage-footer">
+                <span>固定模板 / DETERMINISTIC</span>
+                <span class="footer-center">图形表现不代表系统自动判断命理关系</span>
+                <span>1920 × 1080 LOGIC</span>
+              </div>
+              <button class="bazi-entry-trigger" id="baziEntryTrigger" type="button" hidden>公历 / 农历排盘</button>
+              <button class="bazi-entry-trigger qimen-chart-trigger" id="qimenChartTrigger" type="button" hidden>起局（年月日时）</button>
+              <svg class="motion-overlay" id="motionOverlay" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div class="bottom-actionbar" id="bottomActionbar">
+          <div class="actionbar-left">
+            <span class="actionbar-label">主题</span>
+            <div class="theme-switch" role="group" aria-label="主题切换">
+              <button class="theme-option" data-theme="ink" type="button" aria-pressed="false"><i></i>玄青</button>
+              <button class="theme-option" data-theme="cinnabar" type="button" aria-pressed="false"><i></i>绛砂</button>
+              <button class="theme-option" data-theme="paper" type="button" aria-pressed="false"><i></i>浅色</button>
+              <button class="theme-option" data-preset="cool" type="button" aria-pressed="false"><i style="--swatch:#d8e5f0"></i>冷白</button>
+              <button class="theme-option" data-preset="warm" type="button" aria-pressed="false"><i style="--swatch:#eceae4"></i>暖米</button>
+              <span class="preset-switch" id="presetSwitch"></span>
+            </div>
+            <span class="font-switch" role="group" aria-label="宫位字体切换">
+              <button class="theme-option" data-font="yahei" type="button" aria-pressed="true">雅黑</button>
+              <button class="theme-option" data-font="shoujin" type="button" aria-pressed="false">瘦金</button>
+            </span>
+          </div>
+          <div class="actionbar-right">
+            <span class="selected-label">当前对象 <b id="selectedLabel">中宫</b></span>
+            <button class="mini-action subtle" id="undoBtn">清除当前效果</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel" id="controlPanel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-kicker">MOTION CONTROL</div>
+            <h2>动效控制</h2>
+          </div>
+          <button class="icon-button panel-close" id="panelClose" aria-label="关闭控制面板">×</button>
+        </div>
+
+        <section class="panel-section">
+          <div class="section-title"><span>01</span> 目标对象</div>
+          <label class="field-label" for="sourceTarget">主目标 / 起点</label>
+          <select id="sourceTarget" class="dark-select"></select>
+          <label class="field-label" for="targetTarget">关系目标 / 终点</label>
+          <select id="targetTarget" class="dark-select"></select>
+          <label class="field-label" for="convergeTarget">多方关系目标（汇聚点）</label>
+          <select id="convergeTarget" class="dark-select"></select>
+          <div class="selected-hint" id="selectedHint"></div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title"><span>02</span> 固定视觉效果</div>
+          <div class="effect-grid">
+            <button class="effect-button" data-effect="highlight.focus"><span class="effect-glyph glyph-focus">◎</span><span>聚光高亮</span></button>
+            <button class="effect-button" data-effect="element.lift"><span class="effect-glyph glyph-lift">◇</span><span>局部浮起</span></button>
+            <button class="effect-button" data-effect="relation.flow"><span class="effect-glyph glyph-flow">⋈</span><span>多方汇聚</span></button>
+            <button class="effect-button" data-effect="relation.suppress"><span class="effect-glyph glyph-suppress">⊣</span><span>作用 / 制化</span></button>
+          </div>
+          <div class="display-option" id="qimenWuxingOption">
+            <div class="display-option-copy">
+              <b>奇门五行着色</b>
+              <small>八门 · 九星 · 天干</small>
+            </div>
+            <label class="switch">
+              <input id="qimenWuxingToggle" type="checkbox" checked aria-label="奇门五行着色" />
+              <span class="switch-track" aria-hidden="true"></span>
+            </label>
+          </div>
+          <div class="divider-line"></div>
+          <div class="section-title compact"><span>03</span> 象意动效</div>
+          <div class="imagery-grid">
+            <button class="imagery-button" data-effect="imagery.wood.growth"><i class="tone-wood"></i>木 · 生长</button>
+            <button class="imagery-button" data-effect="imagery.fire.flare"><i class="tone-fire"></i>火 · 焰光</button>
+            <button class="imagery-button" data-effect="imagery.earth.gather"><i class="tone-earth"></i>土 · 聚合</button>
+            <button class="imagery-button" data-effect="imagery.metal.glint"><i class="tone-metal"></i>金 · 反光</button>
+            <button class="imagery-button" data-effect="imagery.water.flow"><i class="tone-water"></i>水 · 流动</button>
+            <button class="imagery-button" data-effect="imagery.door.open"><i class="tone-gold"></i>门 · 开启</button>
+            <button class="imagery-button" data-effect="imagery.road.extend"><i class="tone-earth"></i>道路 · 延展</button>
+            <button class="imagery-button" data-effect="imagery.person.reveal"><i class="tone-gold"></i>人物 · 显现</button>
+            <button class="imagery-button" data-effect="imagery.vehicle.appear"><i class="tone-metal"></i>车辆 · 显现</button>
+            <button class="imagery-button" data-effect="imagery.house.reveal"><i class="tone-earth"></i>建筑 · 显现</button>
+            <button class="imagery-button" data-effect="imagery.mountain.rise"><i class="tone-earth"></i>山体 · 升起</button>
+          </div>
+          <div class="divider-line"></div>
+          <div class="section-title compact"><span>04</span> 装饰效果</div>
+          <div class="imagery-grid">
+            <button class="imagery-button" data-effect="decorative.gold.particles"><i class="tone-gold"></i>金色粒子</button>
+            <button class="imagery-button" data-effect="decorative.mist.rise"><i class="tone-gold"></i>薄雾上升</button>
+            <button class="imagery-button" data-effect="decorative.compass.rotate"><i class="tone-gold"></i>罗盘刻度</button>
+          </div>
+        </section>
+
+        <section class="panel-section settings-section">
+          <div class="section-title"><span>04</span> 播放策略</div>
+          <label class="field-label" for="playbackPolicy">当前动画结束后</label>
+          <select id="playbackPolicy" class="dark-select">
+            <option value="replace" selected>保留当前结果；下一个动画替换它</option>
+            <option value="autoReset">动画结束自动恢复</option>
+          </select>
+          <div class="range-row"><label for="durationRange">持续时间</label><output id="durationOutput">1.5 秒</output></div>
+          <input id="durationRange" type="range" min="500" max="5000" step="100" value="1500" />
+          <div class="tone-row">
+            <label for="toneSelect">关系色调</label>
+            <select id="toneSelect" class="dark-select compact-select">
+              <option value="gold">古金</option><option value="wood">木青</option><option value="fire">火朱</option><option value="water">水蓝</option><option value="metal">金白</option><option value="earth">土赭</option>
+            </select>
+          </div>
+          <div class="range-row"><label for="intensityRange">五行效果强度</label><output id="intensityOutput">2 / 3</output></div>
+          <input id="intensityRange" type="range" min="0" max="3" step="1" value="2" />
+          <div class="helper-note">0–3 档控制木、火、土、金、水象意的尺寸与光效；可实时调整当前目标，不推断旺衰。</div>
+        </section>
+
+        <section class="panel-section composition-section">
+          <div class="section-title"><span>05</span> 组合动作预览</div>
+          <div class="composition-preview">
+            <div class="composition-node"><b>01</b><span>聚光高亮</span><small>0.0s</small></div>
+            <div class="composition-connector"></div>
+            <div class="composition-node"><b>02</b><span>关系流动</span><small>0.8s</small></div>
+            <div class="composition-connector"></div>
+            <div class="composition-node"><b>03</b><span>象意焰光</span><small>2.3s</small></div>
+          </div>
+          <button class="wide-action" id="playCompositionBtn"><span>▶</span> 播放示例组合</button>
+          <div class="playback-controls">
+            <button class="small-control" id="pauseCompositionBtn">Ⅱ 暂停</button>
+            <button class="small-control" id="resumeCompositionBtn">▶ 继续</button>
+            <button class="small-control danger" id="stopCompositionBtn">■ 打断</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title"><span>06</span> 区域配色</div>
+          <div class="palette-grid" id="paletteGrid">
+            <label class="palette-field"><span>底色</span><input type="color" data-palette-key="bg" /></label>
+            <label class="palette-field"><span>面板</span><input type="color" data-palette-key="panel" /></label>
+            <label class="palette-field"><span>纸面</span><input type="color" data-palette-key="stage" /></label>
+            <label class="palette-field"><span>纸面浅</span><input type="color" data-palette-key="stageTop" /></label>
+            <label class="palette-field"><span>宫位浅</span><input type="color" data-palette-key="tile1" /></label>
+            <label class="palette-field"><span>宫位中</span><input type="color" data-palette-key="tile2" /></label>
+            <label class="palette-field"><span>宫位深</span><input type="color" data-palette-key="tile3" /></label>
+            <label class="palette-field"><span>强调</span><input type="color" data-palette-key="accent" /></label>
+            <label class="palette-field"><span>主文字</span><input type="color" data-palette-key="ink" /></label>
+            <label class="palette-field"><span>基础文字</span><input type="color" data-palette-key="sub" /></label>
+            <label class="palette-field"><span>顶栏底栏</span><input type="color" data-palette-key="topbar" /></label>
+            <label class="palette-field"><span>案例面板</span><input type="color" data-palette-key="drawer" /></label>
+          </div>
+          <div class="display-option">
+            <div class="display-option-copy">
+              <b>深色外框</b>
+              <small>顶栏 · 面板 · 底栏</small>
+            </div>
+            <label class="switch">
+              <input id="chromeToggle" type="checkbox" aria-label="深色外框" />
+              <span class="switch-track" aria-hidden="true"></span>
+            </label>
+          </div>
+          <div class="palette-save">
+            <input id="presetName" class="palette-name" type="text" maxlength="10" placeholder="配色名称" />
+            <button class="small-control" id="savePresetBtn" type="button">保存预设</button>
+          </div>
+          <div class="palette-actions">
+            <button class="small-control" id="resetPaletteBtn" type="button">恢复浅色</button>
+            <button class="small-control danger" id="deletePresetBtn" type="button" hidden>删除该预设</button>
+          </div>
+          <div class="helper-note">色块即时生效；保存后出现在左下角预设区。</div>
+        </section>
+        <div class="panel-footnote">原型仅验证视觉与播放接口。正式命理模板、案例保存和素材库由主应用实现。</div>
+      </aside>
+
+      <aside class="case-drawer" id="caseDrawer" aria-label="案例库" aria-hidden="true"></aside>
+    </main>
+
+    <div class="bazi-date-modal" id="baziDateModal" aria-hidden="true">
+      <div class="bazi-date-dialog" role="dialog" aria-modal="true" aria-labelledby="baziDateTitle">
+        <div class="bazi-date-head"><div><div class="panel-kicker">BAZI DATE INPUT</div><h2 id="baziDateTitle">出生日期排盘</h2></div><button class="icon-button" id="baziDateClose" type="button" aria-label="关闭">×</button></div>
+        <div class="date-mode-switch" role="group" aria-label="日期类型">
+          <button type="button" class="active" data-date-mode="solar">公历</button>
+          <button type="button" data-date-mode="lunar">农历</button>
+        </div>
+        <div class="date-fields" id="solarDateFields">
+          <label>公历日期<input id="solarDateInput" type="date" value="" /></label>
+        </div>
+        <div class="date-fields lunar-fields" id="lunarDateFields" hidden>
+          <label>农历年<input id="lunarYearInput" type="number" min="1900" max="2100" value="" /></label>
+          <label>农历月<select id="lunarMonthInput"></select></label>
+          <label>农历日<input id="lunarDayInput" type="number" min="1" max="30" value="" /></label>
+          <label class="leap-month-toggle"><input id="lunarLeapInput" type="checkbox" /> 闰月</label>
+        </div>
+        <div class="date-fields date-time-row">
+          <label>性别<select id="baziGenderInput"><option value="1" selected>男</option><option value="0">女</option></select></label>
+          <label>出生时间<input id="birthTimeInput" type="time" value="12:00" /></label>
+          <label>晚子时规则<select id="baziSectInput"><option value="2" selected>流派2：晚子时日柱按当天</option><option value="1">流派1：晚子时日柱按次日</option></select></label>
+        </div>
+        <div class="bazi-date-note">自动换算四柱、十神、藏干与大运流年（区分男女，大运按节气起运）；只负责历法换算，不自动判断命理关系。</div>
+        <div class="bazi-date-summary" id="baziDateSummary" aria-live="polite">选择出生日期和时间后，点击排盘。</div>
+        <div class="bazi-date-actions"><button class="quiet-button" id="baziDateCancel" type="button">取消</button><button class="primary-button" id="baziCalculateBtn" type="button">计算并填入四柱</button></div>
+      </div>
+    </div>
+    <div class="bazi-date-modal qimen-chart-modal" id="qimenChartModal" aria-hidden="true">
+      <div class="bazi-date-dialog" role="dialog" aria-modal="true" aria-labelledby="qimenChartTitle">
+        <div class="bazi-date-head"><div><div class="panel-kicker">QIMEN CHART INPUT</div><h2 id="qimenChartTitle">奇门起局</h2></div><button class="icon-button" id="qimenChartClose" type="button" aria-label="关闭">×</button></div>
+        <div class="date-fields date-time-row">
+          <label>公历日期<input id="qimenDateInput" type="date" value="" /></label>
+          <label>时刻<input id="qimenTimeInput" type="time" value="12:00" /></label>
+          <label>起局法<select id="qimenMethodInput"><option value="chaibu" selected>拆补起局</option><option value="zhirun">置闰起局</option></select></label>
+        </div>
+        <div class="bazi-date-note">按年月日时排时家奇门：地盘、天盘、九星、八门、八神、十二长生与旺衰状态一次填入。拆补按节气与符头取局，置闰另计超神接气与芒种/大雪置闰。只排盘，不判断命理关系。</div>
+        <div class="bazi-date-summary" id="qimenChartSummary" aria-live="polite">选择日期和时间后，点击起局。</div>
+        <div class="bazi-date-actions"><button class="quiet-button" id="qimenChartCancel" type="button">取消</button><button class="primary-button" id="qimenCalculateBtn" type="button">起局并填入九宫</button></div>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="presentation-exit" id="presentationExit"><span>展示模式</span><button id="exitPresentationBtn">退出展示 Esc</button></div>
+  </div>
+  <script src="./vendor/qimen-engine.js"></script>
+  <script src="./demo.js"></script>
+</body>
+</html>
