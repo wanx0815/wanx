@@ -1345,6 +1345,18 @@
   function makeOptions(options, selected) {
     return options.map(value => `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`).join('');
   }
+  // 下拉的完整选项等打开时再填：切换模板时少建几百个 option 节点，平板上明显更快。
+  function lazyOptions(options, selected) {
+    const current = selected || options[0];
+    return `<option value="${current}" selected>${current}</option>`;
+  }
+  function expandPicker(select) {
+    if (!select || select.dataset.expanded === '1' || !select.dataset.opts) return;
+    const current = select.value;
+    select.innerHTML = makeOptions(select.dataset.opts.split(' '), current);
+    select.dataset.expanded = '1';
+    if (current) select.value = current;
+  }
   // Cell text is abbreviated: deities and stars keep one character, doors their first.
   const deityShort = { 值符:'符', 腾蛇:'蛇', 螣蛇:'蛇', 太阴:'阴', 六合:'合', 白虎:'虎', 玄武:'玄', 九地:'地', 九天:'天' };
   const shortDeity = value => deityShort[value] || value.slice(-1);
@@ -1378,11 +1390,11 @@
     // Double-clicking a state opens the 12-state panel for that stem alone.
     const field = (p, key, value, options, stateKey, name, marks = '') => {
       const state = !stateKey ? '' : `<span class="qimen-state" data-qimen-edit="${stateKey}" data-qimen-display="${stateKey}">${p[stateKey] || ''}</span>`;
-      return `<span class="qimen-glyph qimen-${key}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,value)}"${qimenWxAttr(key,value)} data-qimen-display="${key}">${shortQimenValue(key,value)}</span></span>${state}<select class="qimen-picker" data-qimen-field="${key}" aria-label="${p.name}宫${name}">${makeOptions(options,value)}</select></span>`;
+      return `<span class="qimen-glyph qimen-${key}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,value)}"${qimenWxAttr(key,value)} data-qimen-display="${key}">${shortQimenValue(key,value)}</span></span>${state}<select class="qimen-picker" data-qimen-field="${key}" data-opts="${options.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(options,value)}</select></span>`;
     };
     // 寄宫 sits in its own centre column so the stem lines up with 九星/天盘 (row 2)
     // or 八门/地盘 (row 3).
-    const jiField = (p, key, slot, name, marks = '') => !p[key] ? '' : `<span class="qimen-glyph qimen-ji qimen-ji-${slot}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,p[key])}"${qimenWxAttr(key,p[key])} data-qimen-display="${key}">${p[key]}</span></span><span class="qimen-state" data-qimen-edit="${key}State" data-qimen-display="${key}State">${p[key + 'State'] || ''}</span><select class="qimen-picker" data-qimen-field="${key}" aria-label="${p.name}宫${name}">${makeOptions(baziStems,p[key])}</select></span>`;
+    const jiField = (p, key, slot, name, marks = '') => !p[key] ? '' : `<span class="qimen-glyph qimen-ji qimen-ji-${slot}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,p[key])}"${qimenWxAttr(key,p[key])} data-qimen-display="${key}">${p[key]}</span></span><span class="qimen-state" data-qimen-edit="${key}State" data-qimen-display="${key}State">${p[key + 'State'] || ''}</span><select class="qimen-picker" data-qimen-field="${key}" data-opts="${baziStems.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(baziStems,p[key])}</select></span>`;
     const emblem = `<div class="qimen-emblem" aria-hidden="true"><img src="assets/library/qimen_bagua.svg" alt="" /></div>`;
     // 旬首是地盘上的那个六仪；值使是当前落宫的八门。
     const xunShouStem = (qimenMeta.xunShou || '').slice(-1);
@@ -1454,7 +1466,7 @@
     const value = item[field];
     const options = isStem ? baziStems : baziBranches;
     const holder = `${kind === 'fortune' ? 'data-fortune' : 'data-pillar'}="${item.key}"`;
-    return `<div ${nodeAttrs(id, title, isStem ? '十天干' : '十二地支')} class="anchor-node bazi-cell ${isStem ? 'stem-cell' : 'branch-cell'}${kind === 'fortune' ? ' fortune-cell' : ''}" data-element-id="${id}" data-label="${title} · ${value}"><div class="motion-surface" data-motion-surface><select class="bazi-character-picker ${wuxingClass(value)}" data-bazi-value="${field}" ${holder} aria-label="${title}">${makeOptions(options,value)}</select></div></div>`;
+    return `<div ${nodeAttrs(id, title, isStem ? '十天干' : '十二地支')} class="anchor-node bazi-cell ${isStem ? 'stem-cell' : 'branch-cell'}${kind === 'fortune' ? ' fortune-cell' : ''}" data-element-id="${id}" data-label="${title} · ${value}"><div class="motion-surface" data-motion-surface><select class="bazi-character-picker ${wuxingClass(value)}" data-bazi-value="${field}" ${holder} data-opts="${options.join(' ')}" aria-label="${title}">${lazyOptions(options,value)}</select></div></div>`;
   }
   // 流年 runs 10 consecutive years from the selected 大运, so the pre-luck
   // DaYun 0 (a single year) still fills the whole strip.
@@ -1567,14 +1579,9 @@
     $('#qimenChartTrigger').hidden = template !== 'qimen';
     $('#qimenWuxingOption').hidden = template !== 'qimen';
     $$('.template-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.template === template));
-    const options = elementList.map((e) => `<option value="${e[0]}">${e[1]}</option>`).join('');
-    $('#sourceTarget').innerHTML = options;
-    $('#targetTarget').innerHTML = `<option value="">（未选）</option>${options}`;
-    $('#convergeTarget').innerHTML = `<option value="">无（单向）</option>${options}`;
     selectedId = template === 'qimen' ? 'qimen.palace.center' : elementList[0][0];
-    $('#sourceTarget').value = selectedId;
-    $('#targetTarget').value = elementList.find(e => e[0] !== selectedId)[0];
-    $('#convergeTarget').value = '';
+    // 连接下拉在这里一次建好，wireTemplateEditors 不再重复重建。
+    refreshTargetOptions({ source: selectedId, target: elementList.find(e => e[0] !== selectedId)[0], converge: '' });
     wireAnchors();
     wireTemplateEditors();
     wireQimenEditors();
@@ -1586,9 +1593,9 @@
     if (caseDrawer?.classList.contains('open') && template !== previousTemplate) { caseDraft = null; caseFeedbackId = null; caseFilter = '全部'; renderCaseDrawer(); }
     requestAnimationFrame(() => requestAnimationFrame(fitStageBoard));
   }
-  function refreshTargetOptions() {
+  function refreshTargetOptions(fallback) {
     const list = allTemplates[currentTemplate];
-    const previous = {
+    const previous = fallback || {
       source: $('#sourceTarget').value || selectedId,
       target: $('#targetTarget').value,
       converge: $('#convergeTarget').value,
@@ -1642,7 +1649,6 @@
         notify(`${anchor.dataset.label} 已修改。`);
       });
     });
-    refreshTargetOptions();
   }
   function wireQimenEditors() {
     const question = $('.qimen-question', boardContent);
@@ -2016,9 +2022,15 @@
     composition.status = 'stopped'; composition = null;
   }
 
-  $$('.template-tab').forEach(btn => btn.addEventListener('click', () => renderTemplate(btn.dataset.template)));
+  // 先让标签自己亮起来，再把重建盘面推到下一帧，点击不会看起来没反应。
+  $$('.template-tab').forEach(btn => btn.addEventListener('click', () => {
+    if (btn.dataset.template === currentTemplate) return;
+    $$('.template-tab').forEach(b => b.classList.toggle('active', b === btn));
+    requestAnimationFrame(() => renderTemplate(btn.dataset.template));
+  }));
   function openFieldPicker(select) {
     if (!select) return;
+    expandPicker(select);
     if (typeof select.showPicker === 'function') {
       try { select.showPicker(); return; } catch { /* fall through */ }
     }
@@ -2741,5 +2753,7 @@
   renderTemplate('qimen');
   $('#durationOutput').textContent = '1.5 秒';
   requestAnimationFrame(() => requestAnimationFrame(fitStageBoard));
+  // 历法库在首屏后空闲时预载，第一次切到四柱不用再等下载和解析。
+  setTimeout(() => loadLunarLibrary().catch(() => {}), 1200);
   notify('奇门双击宫位查看格局；梅花双击改卦；再次点击触发高亮。');
 })();
