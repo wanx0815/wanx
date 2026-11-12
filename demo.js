@@ -1844,7 +1844,7 @@
       const seat = liurenSeat[p.earth];
       const id = `liuren.palace.${p.earth}`;
       const label = `${p.earth}宫 · 天盘${p.heaven}${p.general ? ' ' + p.general : ''}`;
-      return `<div ${nodeAttrs(id, label)} class="anchor-node liuren-cell" data-element-id="${id}" data-label="${label}" style="grid-row:${seat[0]};grid-column:${seat[1]}">
+      return `<div ${nodeAttrs(id, label)} class="anchor-node liuren-cell${p.dun ? '' : ' liuren-kong'}" data-element-id="${id}" data-label="${label}" style="grid-row:${seat[0]};grid-column:${seat[1]}">
         <div class="motion-surface" data-motion-surface>
           <span class="liuren-gen ${elementClass(liurenGeneralElement[p.general])}">${liurenGeneralShort[p.general] || ''}</span>
           <span class="liuren-heaven ${wuxingClass(p.heaven)}">${p.heaven}</span>
@@ -1881,13 +1881,15 @@
     const wang = chart.wang;
     const fact = (key, value) => `<div class="liuren-factline"><span class="liuren-k">${key}</span><span class="liuren-v">${value}</span></div>`;
     const right = `<aside class="liuren-side liuren-side-right" aria-label="盘面要点">
-      <div class="liuren-pillars">${(liurenMeta.pillars || []).map(([label, value]) => `<span><i>${label}</i><b>${value}</b></span>`).join('')}</div>
-      <div class="liuren-facts">
-        ${fact('旬首', chart.xunShou)}
-        ${fact('空亡', chart.kong.join(''))}
-        ${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}
-        ${fact('占时', `${liurenMeta.hourBranch}时 · ${chart.officials.dayNight}贵${chart.officials.noble}`)}
-        ${fact('课体', chart.principle)}
+      <div class="liuren-side-top">
+        <div class="liuren-pillars">${(liurenMeta.pillars || []).map(([label, value]) => `<span><i>${label}</i><b>${value}</b></span>`).join('')}</div>
+        <div class="liuren-facts">
+          ${fact('旬首', chart.xunShou)}
+          ${fact('空亡', chart.kong.join(''))}
+          ${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}
+          ${fact('占时', `${liurenMeta.hourBranch}时 · ${chart.officials.dayNight}贵${chart.officials.noble}`)}
+          ${fact('课体', chart.principle)}
+        </div>
       </div>
       <div class="liuren-wang">
         <span class="liuren-wang-head">${chart.season} · 四时旺相</span>
