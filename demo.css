@@ -739,8 +739,8 @@ html[data-theme="paper"] .qimen-dun-line path { stroke: #9a7530; }
 .liuren-cell:hover { border-color:rgba(217,184,117,.55); background:linear-gradient(145deg,rgba(48,41,29,.62),rgba(18,21,23,.92)); }
 .liuren-cell .motion-surface { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
 .liuren-gen { position:absolute; top:2px; left:5px; font-size:14.4px; line-height:1; }
-/* 天盘再上提 3px（1.25 抵字号差 + 1.75 视觉微调）：与遁干墨迹顶线齐平。 */
-.liuren-heaven { position:absolute; left:37.5%; top:calc(62.5% - 6px); transform:translate(-50%,-50%); font-size:clamp(21.6px,1.8vw,31.2px); line-height:1; }
+/* 天盘：位置按宫格百分比+字号（em）定位，缩放时比例不变；略偏右上，右移比上移多。 */
+.liuren-heaven { position:absolute; left:43%; top:calc(60% - .23em); transform:translate(-50%,-50%); font-size:clamp(21.6px,1.8vw,31.2px); line-height:1; }
 /* 空亡宫：天盘地支加方框，与右侧「空」对应。 */
 .liuren-kong .liuren-heaven { outline:1px solid currentColor; outline-offset:2px; border-radius:1px; }
 /* 遁干单独按顶边定位，与天盘顶齐平；地支仍是原来的贴底位置，不受牵连。 */
