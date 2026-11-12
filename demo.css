@@ -1556,6 +1556,11 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
 @media (min-width: 901px) {
   .bazi-stage {
     display: grid;
+    /* 盘面块总宽：默认 823（流年列 82 + 间距 12 + 盘面 729）；舞台变窄时按可用宽度收窄，左右边沿始终对称。 */
+    container-type: size;
+    --bz-w: min(823px, 100cqw);
+    /* 竖线位置（盘面内 82 + (盘面宽 - 122) / 3），默认 823 宽时为 378。 */
+    --bz-split: calc(176px + (var(--bz-w) - 216px) / 3);
     /* 内容块固定 823px（流年列 82 + 间距 12 + 盘面 729），左边补等量留白，让它整体居中。 */
     padding-left: max(0px, calc((100% - 823px) / 2));
     grid-template-columns: 82px minmax(0, 1fr) minmax(0, 1fr);
@@ -1571,17 +1576,22 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
     justify-content: center;
   }
   .bazi-side { grid-area: dates; justify-self: start; }
-  .bazi-board { grid-area: board; justify-self: start; width: min(729px, 100%); max-width: 1110px; margin: 0; }
+  .bazi-board { grid-area: board; justify-self: start; width: calc(var(--bz-w) - 94px); max-width: 1110px; margin: 0; }
   .bazi-luck { display: contents; }
   .bazi-luck-row { min-width: 0; }
-  /* 流年：竖列叠放，格内 年份/岁数/干支 横排，整列拉满盘面高度。 */
-  .bazi-luck-row:nth-child(1) { grid-area: liunian; align-self: stretch; flex-direction: column; align-items: stretch; gap: 4px; }
+  /* 流年：竖列叠放，格内 年份/岁数/干支 横排，高度钉住盘面高度（盘高 = 宽 / 3 + 103），舞台矮时随盘面一起收，别把整行撑高。 */
+  .bazi-luck-row:nth-child(1) { grid-area: liunian; height: calc((var(--bz-w) - 94px) / 3 + 103px); align-self: stretch; flex-direction: column; align-items: stretch; gap: 4px; }
   .bazi-luck-row:nth-child(1) .bazi-luck-label { flex: 0 0 auto; writing-mode: horizontal-tb; padding-top: 0; letter-spacing: 3px; }
   .bazi-luck-row:nth-child(1) .bazi-luck-track { flex: 1 1 auto; flex-direction: column; gap: 4px; min-height: 0; }
-  .bazi-luck-row:nth-child(1) .luck-chip { flex: 1 1 0; flex-direction: row; align-items: center; justify-content: center; gap: 2px; padding: 2px; }
+  .bazi-luck-row:nth-child(1) .luck-chip { flex: 1 1 0; flex-direction: row; align-items: center; justify-content: center; gap: 2px; padding: clamp(1px, .243cqw, 2px); }
+  /* 舞台矮时流年列收紧，保证 10 个流年格塞得进盘面高度。 */
+  @container (max-height: 430px) {
+    .bazi-luck-row:nth-child(1) { gap: 2px; }
+    .bazi-luck-row:nth-child(1) .luck-chip { padding: 1px; }
+  }
   /* 下方两块：大运左起本行左沿、右止竖线；流月从竖线到盘面右沿。 */
-  .bazi-luck-row:nth-child(2) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: 0; width: 378px; align-self: stretch; border-left: 0; padding-left: 0; padding-right: 6px; }
-  .bazi-luck-row:nth-child(3) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: 378px; width: 445px; align-self: stretch; align-items: stretch; display: flex; position: relative; border-left: 0; padding-left: 6px; }
+  .bazi-luck-row:nth-child(2) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: 0; width: var(--bz-split); align-self: stretch; border-left: 0; padding-left: 0; padding-right: 6px; }
+  .bazi-luck-row:nth-child(3) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: var(--bz-split); width: calc(var(--bz-w) - var(--bz-split)); align-self: stretch; align-items: stretch; display: flex; position: relative; border-left: 0; padding-left: 6px; }
   /* 竖线跨过盘面与运势条之间的行距，接成一条。 */
   .bazi-luck-row:nth-child(3)::before { content: ''; position: absolute; left: 0; top: -6px; bottom: 0; border-left: 1px solid rgba(217, 184, 117, .22); pointer-events: none; }
   html[data-theme="paper"] .bazi-luck-row:nth-child(3)::before { border-left-color: var(--line); }
@@ -1592,18 +1602,20 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   /* 宫格加高、汉字放大；起运前与其它格等宽。 */
   /* 两段各自铺满：大运 98→竖线、流月 竖线→盘面右沿，格子在各自段内均分。 */
   .bazi-luck-row:nth-child(2) .luck-chip,
-  .bazi-luck-row:nth-child(3) .luck-chip { flex: 1 1 0; min-width: 0; justify-content: center; padding: 3px 0 2px; }
+  .bazi-luck-row:nth-child(3) .luck-chip { flex: 1 1 0; min-width: 0; justify-content: center; padding: clamp(2px, .365cqw, 3px) 0 clamp(1px, .243cqw, 2px); }
+  /* 字号跟着盘面块一起缩：823 宽时为原值（9/8/18），舞台变窄按 cqw 等比收小。 */
   .bazi-luck-row:nth-child(2) .luck-chip b,
-  .bazi-luck-row:nth-child(3) .luck-chip b { font-size: 9px; }
-  .bazi-luck-row:nth-child(2) .luck-chip > span { font-size: 8px; }
+  .bazi-luck-row:nth-child(3) .luck-chip b { font-size: clamp(7px, 1.0936cqw, 9px); }
+  .bazi-luck-row:nth-child(2) .luck-chip > span { font-size: clamp(6px, .9721cqw, 8px); }
   .bazi-luck-row:nth-child(2) .luck-chip em,
-  .bazi-luck-row:nth-child(3) .luck-month-gz { font-size: 18px; line-height: 1.1; }
+  .bazi-luck-row:nth-child(3) .luck-month-gz { font-size: clamp(13px, 2.1871cqw, 18px); line-height: 1.1; }
   /* 「起运前」不是干支，按格宽收小，否则横向撑出格子。 */
-  .bazi-luck-row:nth-child(2) .luck-chip.luck-chip-pre .luck-chip-empty { font-size: 9px; line-height: 1.2; letter-spacing: 0; }
-  /* 流年宫格与下方两行同字号：小字 9px、岁数 8px、干支 18px。 */
-  .bazi-luck-row:nth-child(1) .luck-chip b { font-size: 9px; }
-  .bazi-luck-row:nth-child(1) .luck-chip > span { font-size: 8px; }
-  .bazi-luck-row:nth-child(1) .luck-chip em { font-size: 18px; line-height: 1.1; }
+  .bazi-luck-row:nth-child(2) .luck-chip.luck-chip-pre .luck-chip-empty { font-size: clamp(7px, 1.0936cqw, 9px); line-height: 1.2; letter-spacing: 0; }
+  /* 流年宫格与下方两行同字号：小字、岁数、干支同比例缩。 */
+  .bazi-luck-row:nth-child(1) .luck-chip b { font-size: clamp(7px, 1.0936cqw, 9px); }
+  .bazi-luck-row:nth-child(1) .luck-chip > span { font-size: clamp(6px, .9721cqw, 8px); }
+  .bazi-luck-row:nth-child(1) .luck-chip em { font-size: clamp(13px, 2.1871cqw, 18px); line-height: 1.1; }
+  .bazi-luck-row .bazi-luck-label { font-size: clamp(8px, 1.2151cqw, 10px); }
   /* 流月与大运同排法：干、支各占一行，字形不斜。 */
   .bazi-luck-row:nth-child(3) .luck-month-gz { text-align: center; }
   .bazi-luck-row:nth-child(3) .luck-month-gz i { display: block; font-style: normal; }
