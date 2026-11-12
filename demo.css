@@ -519,7 +519,7 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
   margin: 0 auto;
   display: grid;
   grid-template-columns: 52px repeat(2, minmax(0, 1fr)) 0 repeat(4, minmax(0, 1fr));
-  grid-template-rows: 16px 18px auto auto 62px;
+  grid-template-rows: 16px 18px auto auto 62px 18px;
   column-gap: 10px;
   row-gap: 6px;
 }
@@ -539,6 +539,7 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 .bazi-star { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; color: #a99b7e; font-size: 11px; letter-spacing: 1px; }
 .bazi-hidden { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px; font-size: 11px; line-height: 1.35; letter-spacing: .5px; }
 .bazi-hidden-item { white-space: nowrap; }
+.bazi-kong { display: flex; align-items: center; justify-content: center; color: #a99b7e; font-size: 11px; letter-spacing: 2px; }
 .bazi-cell { height: auto; align-self: start; aspect-ratio: 1; padding: 0; display: flex; align-items: center; justify-content: center; container-type: size; }
 .bazi-cell .motion-surface { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 /* 字号跟格子走（宽/高取小值），窗口矮或格子被压扁时同步缩小，不会顶出边框。 */
@@ -561,17 +562,23 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 .bazi-luck[hidden] { display: none; }
 .bazi-luck-row { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
 .bazi-luck-row + .bazi-luck-row { border-left: 2px solid rgba(217, 184, 117, .4); padding-left: 12px; }
+/* 流月行只在竖屏出现，横版舞台放不下第三条横排。 */
+.bazi-luck-row:nth-child(3) { display: none; grid-column: 1 / -1; border-left: 0; padding-left: 0; }
 .bazi-luck-label { flex: 0 0 14px; writing-mode: vertical-rl; padding-top: 2px; color: #8d805f; font-size: 10px; line-height: 1.2; letter-spacing: 2px; }
 .bazi-luck-track { flex: 1 1 auto; display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
 .luck-chip { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 3px 0; border: 1px solid rgba(217, 184, 117, .16); border-radius: 3px; background: rgba(16, 20, 23, .7); color: #b8a986; font-size: 10px; line-height: 1.15; cursor: pointer; }
 /* The pre-luck chip holds words instead of a stem/branch pair, so it keeps its width. */
-.luck-chip-pre { flex: 0 0 auto; padding: 3px 4px; }
-.luck-chip b { font-weight: 400; color: #b8a986; font-size: 9px; letter-spacing: .5px; white-space: nowrap; }
+.luck-chip-pre { flex: 0 0 auto; padding: 3px 4px; min-width: 56px; }
+/* 四行内容（干/支/年/岁）不允许被 flex 压缩，否则会叠在一起。 */
+.luck-chip > * { flex: 0 0 auto; }
+.luck-chip b { font-weight: 400; color: #b8a986; font-size: 8px; letter-spacing: .5px; white-space: nowrap; }
 .luck-chip > span { font-size: 8px; color: #77776f; white-space: nowrap; }
-.luck-chip em { font-style: normal; color: #e1c990; font-size: 13px; letter-spacing: .5px; white-space: nowrap; }
+/* 干、支各占一行，颜色由 wx-* 决定，这里不设 color 以免盖掉五行色。 */
+.luck-chip em { font-style: normal; font-size: 12px; line-height: 1.1; letter-spacing: 0; white-space: nowrap; }
+.luck-chip .luck-chip-empty { font-size: 9px; color: #77776f; letter-spacing: 0; white-space: nowrap; }
+.luck-chip-month { cursor: default; }
 .luck-chip:hover { border-color: rgba(217, 184, 117, .42); }
 .luck-chip.active { border-color: rgba(217, 184, 117, .6); background: rgba(217, 184, 117, .12); color: #ead8ac; }
-.luck-chip.active em { color: #f0d9a0; }
 
 .meihua-board { position: relative; width: auto; aspect-ratio: 3 / 2; }
 /* Frameless placement slot for 象意动效, smaller than the trigram, level with the top row. */
@@ -965,14 +972,15 @@ html[data-theme="paper"] .bazi-head.bazi-corner,
 html[data-theme="paper"] .bazi-rowlabel { color: var(--accent); }
 html[data-theme="paper"] .bazi-star { color: var(--sub); }
 html[data-theme="paper"] .bazi-hidden { color: var(--sub); }
+html[data-theme="paper"] .bazi-kong { color: var(--sub); }
 html[data-theme="paper"] .bazi-board::before { border-left-color: var(--line); }
 html[data-theme="paper"] .bazi-luck-row + .bazi-luck-row { border-left-color: var(--tile-border); }
 html[data-theme="paper"] .luck-chip { background: rgba(255,255,255,.55); border-color: var(--line); color: var(--sub); }
 html[data-theme="paper"] .luck-chip b { color: var(--sub); }
 html[data-theme="paper"] .luck-chip > span { color: var(--muted); }
-html[data-theme="paper"] .luck-chip em { color: var(--accent); }
+/* 带 wx-* 的干支保留五行色，只有"起运前"这类纯文字走强调色。 */
+html[data-theme="paper"] .luck-chip em:not([class*="wx-"]) { color: var(--accent); }
 html[data-theme="paper"] .luck-chip.active { background: var(--tile-2); color: var(--ink); border-color: var(--tile-border); }
-html[data-theme="paper"] .luck-chip.active em { color: var(--ink); }
 html[data-theme="paper"] .hex-card .trigram-svg { color: var(--ink); }
 html[data-theme="paper"] .control-panel {
   background: var(--panel);
@@ -1204,4 +1212,127 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   background: var(--drawer, var(--panel));
   border-color: var(--line);
   color: var(--ink, var(--text));
+}
+
+/* ── 窄屏竖版（<=900px）─────────────────────────────────────────────
+   手机竖屏为基准（iPhone 16 Pro 402×874 起）。舞台外框保留，内容收进内边线以内；
+   四柱六列方形格子，运势三条同高等宽；奇门九宫居中、不压内边线。 */
+@media (max-width: 900px) {
+  html, body { min-width: 0; }
+  .topbar { height: 50px; flex: 0 0 50px; padding: 0 10px; }
+  .brand-subtitle, .topbar-center { display: none; }
+  .brand-title { font-size: 12px; letter-spacing: 1px; }
+  .workspace { padding: 6px 8px; gap: 6px; flex: 1 1 auto; min-height: 0; }
+  .stage-column { min-height: 0; }
+  .stage-toolbar { height: 32px; flex-basis: 32px; }
+  .stage-size-label { display: none; }
+
+  /* 高度链逐层撑满：viewport → slot → board → surface → board-content。 */
+  .stage-viewport { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; gap: 0; }
+  .stage-viewport > * { flex: 0 0 auto; }
+  .stage-viewport > .stage-board-slot { flex: 1 1 auto; }
+  .stage-board-slot { display: flex; flex: 1 1 auto; min-height: 0; container-type: normal; overflow: visible; }
+  .stage-board { width: 100%; height: 100% !important; aspect-ratio: auto !important; flex: 1 1 auto; display: flex; flex-direction: column; }
+  /* 内边线是 ::before 的 inset 13px，内容从 20px 起排才不会压线。 */
+  .stage-surface { height: auto; flex: 1 1 auto; display: flex; flex-direction: column; padding: 20px 16px 18px; }
+  .stage-backdrop-grid, .motion-overlay { display: none; }
+  .board-content { position: static; inset: auto; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; flex: 1 1 auto; min-height: 0; }
+  .bottom-actionbar { display: none; }
+
+  /* ── 四柱 ───────────────────────────── */
+  /* 顶部固定 47px，日期顶落在 155，与奇门日期同高；不再靠底部留白挤压，窄屏也不会溢出。 */
+  .bazi-stage { justify-content: flex-start; gap: 4px; padding: 47px 0 0; }
+  .bazi-side { width: 100%; gap: 2px; padding: 0 6px; }
+  .bazi-side .qimen-date { font-size: 15px; line-height: 1.4; }
+  .bazi-side .qimen-date:nth-child(2) { font-size: 13px; }
+
+  .bazi-board {
+    width: 100%; flex: 0 0 auto;
+    grid-template-columns: 24px repeat(2, minmax(0, 1fr)) 0 repeat(4, minmax(0, 1fr));
+    grid-template-rows: 16px 18px auto auto auto 18px;
+    column-gap: 3px; row-gap: 10px;
+    align-content: start;
+    margin-top: 12px;
+  }
+  .bazi-board::before { left: calc(24px + (100% - 24px) / 6); }
+  .bazi-head { font-size: 10px; letter-spacing: 1px; color: #a2957a; }
+  .bazi-rowlabel { font-size: 9px; letter-spacing: 1px; }
+  .bazi-star { font-size: 10px; letter-spacing: 1px; padding-bottom: 0; }
+  .bazi-hidden { font-size: 9px; line-height: 1.3; letter-spacing: 0; gap: 0; }
+  .bazi-kong { font-size: 10px; letter-spacing: 1px; }
+  /* 宫格是正方形，字随格子缩放。 */
+  .bazi-cell { aspect-ratio: 1; height: auto; align-self: start; border-width: 1px; }
+  .bazi-character-picker { font-size: min(62cqw, 62cqh); }
+
+  /* ── 运势三条：流年 / 大运 / 流月同一套尺寸，紧接盘面 ── */
+  .bazi-luck { width: 100%; flex: 0 0 auto; grid-template-columns: 1fr; row-gap: 10px; }
+  .bazi-luck-row { gap: 6px; align-items: stretch; }
+  .bazi-luck-row + .bazi-luck-row { border-left: 0; padding-left: 0; }
+  .bazi-luck-row:nth-child(3) { display: flex; }
+  .bazi-luck-label { flex: 0 0 10px; font-size: 9px; letter-spacing: 1px; writing-mode: vertical-rl; }
+  .bazi-luck-track { gap: 0; flex-wrap: nowrap; }
+  .luck-chip, .luck-chip-pre, .luck-chip-month { flex: 1 1 0; min-width: 0; padding: 5px 0 6px; border-radius: 0; gap: 1px; }
+  .luck-chip em { font-size: clamp(12px, 3.2vw, 20px); line-height: 1.05; }
+  .luck-chip b, .luck-chip-month b { font-size: clamp(7px, 1.8vw, 11px); letter-spacing: 0; line-height: 1.2; }
+  .luck-chip > span, .luck-chip .luck-chip-empty { font-size: clamp(6px, 1.6vw, 10px); }
+  /* 流月干支与其它条一样分两行、同样的字。 */
+  .luck-chip > span.luck-month-gz { font-size: clamp(12px, 3.2vw, 20px); line-height: 1.05; letter-spacing: 0; white-space: nowrap; }
+  .luck-month-gz i { font-style: normal; display: block; }
+  /* 点击流年 / 大运 / 流月时的聚亮高光。 */
+  .luck-chip-month { cursor: pointer; }
+  @keyframes luck-flare {
+    0% { box-shadow: 0 0 0 0 rgba(229, 196, 126, 0); filter: brightness(1); }
+    22% { box-shadow: 0 0 22px 4px rgba(229, 196, 126, .62), inset 0 0 16px rgba(255, 240, 205, .5); filter: brightness(1.65); }
+    100% { box-shadow: 0 0 0 0 rgba(229, 196, 126, 0); filter: brightness(1); }
+  }
+  .luck-chip.is-flaring { animation: luck-flare .78s ease-out; }
+
+  /* ── 奇门 ───────────────────────────── */
+  /* 左上日期、右上四柱、整行问事，九宫居中且不压内边线。 */
+  .qimen-stage {
+    position: relative;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+    grid-template-areas: "d1 right" "d2 right" "question question";
+    grid-template-rows: 20px auto auto;
+    gap: 0 10px; align-items: start; align-content: start; width: 100%; flex: 1 1 auto; min-height: 0;
+    padding: 6px 10px 0;
+  }
+  .qimen-side-left { display: contents; }
+  .qimen-side-left > .qimen-date:nth-of-type(1) { grid-area: d1; justify-self: start; }
+  .qimen-side-left > .qimen-date:nth-of-type(2) { grid-area: d2; justify-self: start; }
+  .qimen-side-left > .qimen-question { grid-area: question; width: 100%; }
+  /* 右栏与日期同一条行距，四柱首列与旬首共用同一条左边缘。 */
+  .qimen-side-right { grid-area: right; max-width: none; justify-self: end; align-items: stretch; min-width: 0; padding-top: 0; gap: 4px; }
+  .qimen-date { writing-mode: horizontal-tb; white-space: nowrap; font-size: 15px; line-height: 20px; letter-spacing: 0; }
+  .qimen-side-left > .qimen-date:nth-of-type(2) { font-size: 13px; }
+  /* 问事框只留够用的高度，内容自动换行。 */
+  .qimen-question { display: block; font-size: 12px; line-height: 1.45; padding: 5px 8px; margin: 6px 0 0; min-height: 46px; height: auto; resize: none; overflow-y: auto; }
+  /* 四列等宽等距，横向间隙保持一致；facts 与栏左边缘对齐。 */
+  .qimen-pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); justify-items: center; font-size: 15px; gap: 0; letter-spacing: 0; line-height: 20px; text-align: center; }
+  .qimen-facts { font-size: 10px; gap: 3px; letter-spacing: 0; align-items: flex-start; }
+  .qimen-factline { gap: 8px; }
+  /* 九宫绝对居中于整个舞台，不参与上方内容排版，因此不会压内边线。 */
+  .qimen-board { position: absolute; inset: 0; margin: auto; width: min(100%, 42vh); height: auto; gap: 4px; }
+  /* 顶部让出「起局」按钮的高度，年月日时与所问一起下移，九宫保持不动。 */
+  .qimen-stage { padding-top: 46px; }
+  .qimen-board .qimen-cell { padding: 6px 5px 5px; overflow: hidden; }
+  .qimen-palace-heading { font-size: 12px; }
+  .qimen-value { font-size: clamp(15px, 5.6cqw, 30px); }
+  .qimen-state { font-size: clamp(9px, 2.7cqw, 14px); }
+  .qimen-pattern-tools { display: none; }
+  /* 与工具栏「案例」同尺寸，右边缘对齐（案例右侧留 41px 固定偏移）。 */
+  .bazi-entry-trigger { top: 20px; right: 41px; height: 29px; padding: 0 12px; font-size: 11px; letter-spacing: 1px; border-radius: 5px; border-width: 1px; z-index: 12; }
+  .stage-surface::after { display: none; }
+
+  /* 控制面板改成右侧抽屉，避免 306px 侧栏把画面挤没；点工具栏 ☷ 开关。 */
+  .control-panel {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 84vw; max-width: 330px; z-index: 900;
+    display: block !important;
+    transform: translateX(101%);
+    transition: transform .24s ease;
+    box-shadow: -16px 0 48px rgba(0,0,0,.5);
+  }
+  .control-panel.open { transform: translateX(0); }
+  .case-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 84vw; max-width: 330px; z-index: 899; }
 }

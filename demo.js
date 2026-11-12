@@ -1309,15 +1309,15 @@
   }
   // 中宫：素材库的罗盘动画（透明底）替代宫位字段。
   const baziPillars = [
-    { key: 'year', title: '年', stem: '己', branch: '巳', star: '伤官', hidden: [{ gan: '丙', ss: '比肩' }, { gan: '庚', ss: '偏财' }, { gan: '戊', ss: '食神' }] },
-    { key: 'month', title: '月', stem: '丙', branch: '子', star: '比肩', hidden: [{ gan: '癸', ss: '正官' }] },
-    { key: 'day', title: '日', stem: '丙', branch: '寅', star: '元男', hidden: [{ gan: '甲', ss: '偏印' }, { gan: '丙', ss: '比肩' }, { gan: '戊', ss: '食神' }] },
-    { key: 'hour', title: '时', stem: '戊', branch: '子', star: '食神', hidden: [{ gan: '癸', ss: '正官' }] },
+    { key: 'year', title: '年', stem: '己', branch: '巳', star: '伤官', xunKong: '戌亥', hidden: [{ gan: '丙', ss: '比肩' }, { gan: '庚', ss: '偏财' }, { gan: '戊', ss: '食神' }] },
+    { key: 'month', title: '月', stem: '丙', branch: '子', star: '比肩', xunKong: '申酉', hidden: [{ gan: '癸', ss: '正官' }] },
+    { key: 'day', title: '日', stem: '丙', branch: '寅', star: '元男', xunKong: '戌亥', hidden: [{ gan: '甲', ss: '偏印' }, { gan: '丙', ss: '比肩' }, { gan: '戊', ss: '食神' }] },
+    { key: 'hour', title: '时', stem: '戊', branch: '子', star: '食神', xunKong: '午未', hidden: [{ gan: '癸', ss: '正官' }] },
   ];
   // 流年 / 大运：illustration defaults; 排盘后替换为 lunar-javascript 的大运、流年。
   const baziFortune = [
-    { key: 'liunian', title: '流年', stem: '丙', branch: '午', star: '比肩', hidden: [{ gan: '丁', ss: '劫财' }, { gan: '己', ss: '伤官' }] },
-    { key: 'dayun', title: '大运', stem: '癸', branch: '酉', star: '正官', hidden: [{ gan: '辛', ss: '正财' }] },
+    { key: 'liunian', title: '流年', stem: '丙', branch: '午', star: '比肩', xunKong: '寅卯', hidden: [{ gan: '丁', ss: '劫财' }, { gan: '己', ss: '伤官' }] },
+    { key: 'dayun', title: '大运', stem: '癸', branch: '酉', star: '正官', xunKong: '戌亥', hidden: [{ gan: '辛', ss: '正财' }] },
   ];
   let baziChart = null;
   // 四柱左上角出生日期：排盘或载入案例后写入，公历取阳历输入，农历由历法组件换算。
@@ -1475,16 +1475,23 @@
     const start = Math.max(0, chart.daYun.findIndex(d => d.getIndex() === index));
     return chart.daYun.slice(start).flatMap(d => d.getLiuNian(10)).slice(0, 10);
   }
-  // 干支按五行上色，与盘面天干地支同一套 wx-* 类。
-  const ganZhiHtml = value => [...(value || '')].map(ch => `<span class="${wuxingClass(ch)}">${ch}</span>`).join('');
+  // 大运/流年格：年份与岁数在上，天干、地支各占一行排在其下（对照参考排盘）。
+  const luckGanZhi = (ganZhi, fallback) => {
+    const gan = ganZhi?.[0] || '';
+    if (!gan) return `<em class="luck-chip-empty">${fallback}</em>`;
+    return `<em class="${wuxingClass(gan)}">${gan}</em><em class="${wuxingClass(ganZhi[1])}">${ganZhi[1]}</em>`;
+  };
   function renderBaziLuck() {
     if (!baziChart) return '<div class="bazi-luck" hidden></div>';
     const { daYun, daYunIndex, liuNianYear } = baziChart;
     const liuNian = baziLiuNianList(daYunIndex);
-    const dayunChips = daYun.map(d => `<button type="button" class="luck-chip${d.getIndex() === 0 ? ' luck-chip-pre' : ''}${d.getIndex() === daYunIndex ? ' active' : ''}" data-dayun="${d.getIndex()}"><b>${d.getStartYear()}</b><span>${d.getStartAge()}岁</span><em>${ganZhiHtml(d.getGanZhi()) || '起运前'}</em></button>`).join('');
-    const liunianChips = liuNian.map(l => `<button type="button" class="luck-chip${l.getYear() === liuNianYear ? ' active' : ''}" data-liunian="${l.getYear()}"><b>${l.getYear()}</b><span>${l.getAge()}岁</span><em>${ganZhiHtml(l.getGanZhi())}</em></button>`).join('');
-    // One band under the chart: 流年 on the left, 大运 on the right, split down the middle.
-    return `<div class="bazi-luck"><div class="bazi-luck-row"><span class="bazi-luck-label">流年</span><div class="bazi-luck-track" data-luck-track="liunian">${liunianChips}</div></div><div class="bazi-luck-row"><span class="bazi-luck-label">大运</span><div class="bazi-luck-track" data-luck-track="dayun">${dayunChips}</div></div></div>`;
+    const currentNian = liuNian.find(l => l.getYear() === liuNianYear) || liuNian[0];
+    const liuYue = currentNian?.getLiuYue?.() || [];
+    const dayunChips = daYun.map(d => `<button type="button" class="luck-chip${d.getIndex() === 0 ? ' luck-chip-pre' : ''}${d.getIndex() === daYunIndex ? ' active' : ''}" data-dayun="${d.getIndex()}"><b>${d.getStartYear()}</b><span>${d.getStartAge()}岁</span>${luckGanZhi(d.getGanZhi(), '起运前')}</button>`).join('');
+    const liunianChips = liuNian.map(l => `<button type="button" class="luck-chip${l.getYear() === liuNianYear ? ' active' : ''}" data-liunian="${l.getYear()}"><b>${l.getYear()}</b><span>${l.getAge()}岁</span>${luckGanZhi(l.getGanZhi(), '')}</button>`).join('');
+    const liuyueChips = liuYue.map(m => `<div class="luck-chip luck-chip-month"><b>${m.getMonthInChinese()}月</b><span class="luck-month-gz">${[...m.getGanZhi()].map(ch => `<i class="${wuxingClass(ch)}">${ch}</i>`).join('')}</span></div>`).join('');
+    // One band under the chart: 流年 on the left, 大运 on the right, 流月 across the bottom.
+    return `<div class="bazi-luck"><div class="bazi-luck-row"><span class="bazi-luck-label">流年</span><div class="bazi-luck-track" data-luck-track="liunian">${liunianChips}</div></div><div class="bazi-luck-row"><span class="bazi-luck-label">大运</span><div class="bazi-luck-track" data-luck-track="dayun">${dayunChips}</div></div><div class="bazi-luck-row"><span class="bazi-luck-label">流月</span><div class="bazi-luck-track" data-luck-track="liuyue">${liuyueChips}</div></div></div>`;
   }
   function renderBazi() {
     const columns = [
@@ -1504,17 +1511,28 @@
     const stems = row('天干', cellsAt(c => baziCard(c.kind, c.item, 'stem')));
     const branches = row('地支', cellsAt(c => baziCard(c.kind, c.item, 'branch')));
     const hidden = row('藏干', cellsAt(c => `<div class="bazi-hidden" data-motion-layer>${(c.item.hidden || []).map(h => `<span class="bazi-hidden-item ${wuxingClass(h.gan)}">${h.gan}${h.ss || ''}</span>`).join('')}</div>`));
+    const kongWang = row('空亡', cellsAt(c => `<div class="bazi-kong" data-motion-layer>${c.item.xunKong || ''}</div>`));
     // 左上角出生日期，排盘或载入案例后才有内容。
     const dateLines = [baziMeta.solar, baziMeta.lunar].filter(Boolean).map(value => `<div class="qimen-date">${dateHtml(value)}</div>`).join('');
     const dates = dateLines ? `<aside class="bazi-side" aria-label="出生日期">${dateLines}</aside>` : '';
-    return `<div class="bazi-stage">${dates}<div class="bazi-board">${head}${stars}${stems}${branches}${hidden}</div>${renderBaziLuck()}</div>`;
+    return `<div class="bazi-stage">${dates}<div class="bazi-board">${head}${stars}${stems}${branches}${hidden}${kongWang}</div>${renderBaziLuck()}</div>`;
+  }
+  // 旬空：由干支在六十甲子中的位置推所在旬，取该旬余下两支。
+  function xunKongOf(ganZhi) {
+    const gan = baziStems.indexOf(ganZhi?.[0]);
+    const zhi = baziBranches.indexOf(ganZhi?.[1]);
+    if (gan < 0 || zhi < 0) return '';
+    let index = 0;
+    while (index < 60 && !(index % 10 === gan && index % 12 === zhi)) index++;
+    const head = index - (index % 10);
+    return baziBranches[(head + 10) % 12] + baziBranches[(head + 11) % 12];
   }
   function fortuneFromGanZhi(ganzhi) {
     if (!ganzhi) return null;
     const [stem, branch] = ganzhi;
     const dayGan = baziPillars[2].stem;
     const shiShen = gan => window.LunarUtil?.SHI_SHEN?.[dayGan + gan] || '';
-    return { stem, branch, star: shiShen(stem), hidden: (window.LunarUtil?.ZHI_HIDE_GAN?.[branch] || []).map(gan => ({ gan, ss: shiShen(gan) })) };
+    return { stem, branch, star: shiShen(stem), xunKong: xunKongOf(ganzhi), hidden: (window.LunarUtil?.ZHI_HIDE_GAN?.[branch] || []).map(gan => ({ gan, ss: shiShen(gan) })) };
   }
   function setFortune(key, ganzhi) {
     const item = baziFortune.find(f => f.key === key);
@@ -1548,6 +1566,26 @@
   function wireBaziLuck() {
     $$('[data-dayun]', boardContent).forEach(btn => btn.addEventListener('click', () => selectDaYun(Number(btn.dataset.dayun))));
     $$('[data-liunian]', boardContent).forEach(btn => btn.addEventListener('click', () => selectLiuNian(Number(btn.dataset.liunian))));
+    // 聚亮高光：流年 / 大运会整块重渲染，所以要等下一帧再找新节点。
+    if (boardContent.dataset.luckFlare) return;
+    boardContent.dataset.luckFlare = '1';
+    const flash = el => {
+      if (!el) return;
+      el.classList.remove('is-flaring');
+      void el.offsetWidth;
+      el.classList.add('is-flaring');
+    };
+    boardContent.addEventListener('click', event => {
+      const chip = event.target.closest('.luck-chip');
+      if (!chip) return;
+      const key = chip.dataset.dayun ? `[data-dayun="${chip.dataset.dayun}"]`
+        : chip.dataset.liunian ? `[data-liunian="${chip.dataset.liunian}"]` : null;
+      if (key) requestAnimationFrame(() => flash(boardContent.querySelector(key)));
+      else flash(chip);
+    });
+    boardContent.addEventListener('animationend', event => {
+      if (event.target.classList?.contains('is-flaring')) event.target.classList.remove('is-flaring');
+    });
   }
   function renderMeihua() {
     // Empty placement slot (no frame) for 象意动效, level with the top row.
@@ -1725,6 +1763,7 @@
       pillar.stem = part.stem;
       pillar.branch = part.branch;
       pillar.star = index === 2 ? (Number(gender) === 1 ? '元男' : '元女') : shiShen(part.stem);
+      pillar.xunKong = part.xunKong || '';
       pillar.hidden = (window.LunarUtil?.ZHI_HIDE_GAN?.[part.branch] || []).map(gan => ({ gan, ss: shiShen(gan) }));
     });
   }
@@ -1757,10 +1796,10 @@
       const sect = Number($('#baziSectInput').value || 2);
       eight.setSect(sect);
       const parts = [
-        {stem:eight.getYearGan(),branch:eight.getYearZhi()},
-        {stem:eight.getMonthGan(),branch:eight.getMonthZhi()},
-        {stem:eight.getDayGan(),branch:eight.getDayZhi()},
-        {stem:eight.getTimeGan(),branch:eight.getTimeZhi()},
+        {stem:eight.getYearGan(),branch:eight.getYearZhi(),xunKong:eight.getYearXunKong()},
+        {stem:eight.getMonthGan(),branch:eight.getMonthZhi(),xunKong:eight.getMonthXunKong()},
+        {stem:eight.getDayGan(),branch:eight.getDayZhi(),xunKong:eight.getDayXunKong()},
+        {stem:eight.getTimeGan(),branch:eight.getTimeZhi(),xunKong:eight.getTimeXunKong()},
       ];
       if (parts.some(part => !part.stem || !part.branch)) throw new Error('历法组件未返回完整四柱，请检查输入。');
       const gender = Number($('#baziGenderInput').value || 1);
@@ -1828,10 +1867,12 @@
       // 天盘寄宫: 天禽 rides with 天芮. 地盘寄宫: 中宫地盘干 寄坤二宫.
       palace.extra = data.jiGanStem || '';
       palace.extraEarth = palace.key === 'kun' ? centerStem : '';
+      // 地盘干的十二长生取支按天盘干的阴阳定（阳取阳支、阴取阴支）；天盘缺省时回落地盘。
+      const lifeRef = palace.heaven || palace.earth;
       palace.heavenState = lifeText(palace.heaven, palace.key, palace.earth);
-      palace.earthState = lifeText(palace.earth, palace.key, palace.earth);
+      palace.earthState = lifeText(palace.earth, palace.key, lifeRef);
       palace.extraState = palace.extra ? lifeText(palace.extra, palace.key, palace.earth) : '';
-      palace.extraEarthState = palace.extraEarth ? lifeText(palace.extraEarth, palace.key, palace.earth) : '';
+      palace.extraEarthState = palace.extraEarth ? lifeText(palace.extraEarth, palace.key, lifeRef) : '';
       palace.starState = starStateFor(palace.star, palace.key);
       palace.doorState = doorStateFor(palace.door, palace.key);
     });
@@ -1845,10 +1886,11 @@
     qimenMeta.horse = horseBranch;
     qimenPatterns.mode = null;
   }
-  async function calculateQimenFromDate() {
+  async function calculateQimenFromDate(options = {}) {
+    const silent = !!options.silent;
     const summary = $('#qimenChartSummary');
     summary.classList.remove('error');
-    summary.textContent = '正在加载历法组件并起局…';
+    if (!silent) summary.textContent = '正在加载历法组件并起局…';
     try {
       await loadLunarLibrary();
       if (!window.QimenEngine) throw new Error('奇门排盘组件未加载，请检查 demo/vendor/qimen-engine.js。');
@@ -1890,11 +1932,14 @@
       qimenMeta.isYangDun = ju.isYangDun;
       renderTemplate('qimen');
       summary.textContent = `${term}${ju.yuan}元 · ${ju.isYangDun ? '阳' : '阴'}遁${ju.juNumber}局 · ${yearGz}年 ${monthGz}月 ${exactDay}日 ${hourGz}时 · 空亡 ${chart.kongWang.join('')} · 值符${chart.zhiFuStar} 值使${chart.zhiShiDoor}`;
-      notify(`${method === 'zhirun' ? '置闰' : '拆补'}起局完成：${ju.isYangDun ? '阳' : '阴'}遁${ju.juNumber}局，九宫已填入。`);
-      closeQimenChartModal();
+      if (!silent) {
+        notify(`${method === 'zhirun' ? '置闰' : '拆补'}起局完成：${ju.isYangDun ? '阳' : '阴'}遁${ju.juNumber}局，九宫已填入。`);
+        closeQimenChartModal();
+      }
     } catch (error) {
       summary.classList.add('error');
       summary.textContent = error?.message || '起局失败，请检查输入日期和时间。';
+      if (silent) console.warn('[自动起局]', error);
     }
   }
   function clearAllEffectsQuiet() {
@@ -2129,6 +2174,8 @@
   $('#panelToggle').addEventListener('click', () => {
     const show = panel.classList.contains('hidden');
     panel.classList.toggle('hidden');
+    // 窄屏下面板是抽屉，用 .open 滑入滑出；宽屏没有对应样式，无副作用。
+    panel.classList.toggle('open');
     if (show) toggleCaseDrawer(false);
   });
   $('#panelClose').addEventListener('click', () => panel.classList.add('hidden'));
@@ -2753,7 +2800,16 @@
   renderTemplate('qimen');
   $('#durationOutput').textContent = '1.5 秒';
   requestAnimationFrame(() => requestAnimationFrame(fitStageBoard));
-  // 历法库在首屏后空闲时预载，第一次切到四柱不用再等下载和解析。
-  setTimeout(() => loadLunarLibrary().catch(() => {}), 1200);
+  // 首屏按当前时间自动起局；示例盘只作为历法库下载完成前的占位。
+  autoQimenToNow().catch(() => {});
   notify('奇门双击宫位查看格局；梅花双击改卦；再次点击触发高亮。');
+
+  async function autoQimenToNow() {
+    await loadLunarLibrary();
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    $('#qimenDateInput').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    $('#qimenTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    await calculateQimenFromDate({ silent: true });
+  }
 })();
