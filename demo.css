@@ -1237,7 +1237,13 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   .stage-surface { height: auto; flex: 1 1 auto; display: flex; flex-direction: column; padding: 20px 16px 18px; }
   .stage-backdrop-grid, .motion-overlay { display: none; }
   .board-content { position: static; inset: auto; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; flex: 1 1 auto; min-height: 0; }
-  .bottom-actionbar { display: none; }
+  /* 左下角保留主题与字体切换，右侧「当前对象 / 清除效果」窄屏用不上。 */
+  .bottom-actionbar { display: flex; height: 34px; flex: 0 0 34px; margin-top: 2px; padding: 0 2px; justify-content: flex-start; }
+  .actionbar-right, .actionbar-label { display: none; }
+  .theme-switch { gap: 4px; flex-wrap: nowrap; }
+  .theme-option { padding: 4px 7px; font-size: 9px; gap: 4px; letter-spacing: 0; }
+  .theme-option i { width: 6px; height: 6px; }
+  .font-switch { margin-left: 4px; padding-left: 4px; gap: 3px; }
 
   /* ── 四柱 ───────────────────────────── */
   /* 顶部固定 47px，日期顶落在 155，与奇门日期同高；不再靠底部留白挤压，窄屏也不会溢出。 */
@@ -1254,7 +1260,8 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
     align-content: start;
     margin-top: 12px;
   }
-  .bazi-board::before { left: calc(24px + (100% - 24px) / 6); }
+  /* 竖线落在大运列与年柱列的正中（含列间距）。 */
+  .bazi-board::before { left: calc(33px + (100% - 45px) / 3); }
   .bazi-head { font-size: 10px; letter-spacing: 1px; color: #a2957a; }
   .bazi-rowlabel { font-size: 9px; letter-spacing: 1px; }
   .bazi-star { font-size: 10px; letter-spacing: 1px; padding-bottom: 0; }
@@ -1292,7 +1299,7 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   .qimen-stage {
     position: relative;
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
-    grid-template-areas: "d1 right" "d2 right" "question question";
+    grid-template-areas: "d1 right" "d2 right" "question right";
     grid-template-rows: 20px auto auto;
     gap: 0 10px; align-items: start; align-content: start; width: 100%; flex: 1 1 auto; min-height: 0;
     padding: 6px 10px 0;
@@ -1300,7 +1307,7 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   .qimen-side-left { display: contents; }
   .qimen-side-left > .qimen-date:nth-of-type(1) { grid-area: d1; justify-self: start; }
   .qimen-side-left > .qimen-date:nth-of-type(2) { grid-area: d2; justify-self: start; }
-  .qimen-side-left > .qimen-question { grid-area: question; width: 100%; }
+  .qimen-side-left > .qimen-question { grid-area: question; width: min(100%, 170px); }
   /* 右栏与日期同一条行距，四柱首列与旬首共用同一条左边缘。 */
   .qimen-side-right { grid-area: right; max-width: none; justify-self: end; align-items: stretch; min-width: 0; padding-top: 0; gap: 4px; }
   .qimen-date { writing-mode: horizontal-tb; white-space: nowrap; font-size: 15px; line-height: 20px; letter-spacing: 0; }

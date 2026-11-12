@@ -1571,6 +1571,8 @@
     boardContent.dataset.luckFlare = '1';
     const flash = el => {
       if (!el) return;
+      // 同一行只留一个高光：点下一个时把同行上一个立刻收掉。
+      el.closest('.bazi-luck-track')?.querySelectorAll('.is-flaring').forEach(n => { if (n !== el) n.classList.remove('is-flaring'); });
       el.classList.remove('is-flaring');
       void el.offsetWidth;
       el.classList.add('is-flaring');
@@ -2171,14 +2173,20 @@
   $('#pauseCompositionBtn').addEventListener('click', pauseComposition);
   $('#resumeCompositionBtn').addEventListener('click', resumeComposition);
   $('#stopCompositionBtn').addEventListener('click', () => { stopComposition(); notify('组合播放已打断，并恢复本次组合效果。'); });
+  // 窄屏下控制面板是右侧抽屉：初始收起，.hidden 与 .open 必须同步，否则点 × 关不掉。
+  const narrowPanel = matchMedia('(max-width: 900px)');
+  const setPanelOpen = open => {
+    panel.classList.toggle('hidden', !open);
+    panel.classList.toggle('open', open);
+  };
+  if (narrowPanel.matches) setPanelOpen(false);
+  narrowPanel.addEventListener('change', () => { if (narrowPanel.matches) setPanelOpen(false); });
   $('#panelToggle').addEventListener('click', () => {
-    const show = panel.classList.contains('hidden');
-    panel.classList.toggle('hidden');
-    // 窄屏下面板是抽屉，用 .open 滑入滑出；宽屏没有对应样式，无副作用。
-    panel.classList.toggle('open');
-    if (show) toggleCaseDrawer(false);
+    const open = panel.classList.contains('hidden');
+    setPanelOpen(open);
+    if (open) toggleCaseDrawer(false);
   });
-  $('#panelClose').addEventListener('click', () => panel.classList.add('hidden'));
+  $('#panelClose').addEventListener('click', () => setPanelOpen(false));
   function togglePresentation() {
     const isOn = appShell.classList.toggle('presentation-mode');
     $('#presentationBtn').textContent = isOn ? '退出展示模式' : '◫ 展示模式';
