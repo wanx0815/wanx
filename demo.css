@@ -756,19 +756,12 @@ html[data-theme="paper"] .qimen-dun-line path { stroke: #9a7530; }
 .liuren-core span { font-size:9px; color:#8e846c; }
 .liuren-core i { font-style:normal; font-size:9px; color:#6f6a5d; margin:0 2px; }
 .liuren-core em { font-style:normal; font-size:clamp(17px,1.35vw,22px); letter-spacing:2px; text-indent:2px; color:#b6a888; }
-.liuren-pillars { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
-.liuren-pillars span { display:flex; flex-direction:column; align-items:center; gap:2px; border-bottom:1px solid rgba(210,178,112,.16); padding-bottom:4px; }
-.liuren-pillars i { font-style:normal; font-size:16px; color:#8e846c; }
-.liuren-pillars b { font-weight:400; font-size:19.5px; color:#efe2bf; letter-spacing:0; }
-.liuren-facts { display:flex; flex-direction:column; gap:4px; }
-.liuren-factline { display:flex; gap:8px; font-size:11px; line-height:1.4; }
-.liuren-k { flex:0 0 34px; color:#8e846c; }
-.liuren-v { color:#d9cfb6; }
-.liuren-wang { border-top:1px solid rgba(210,178,112,.16); padding-top:6px; }
-.liuren-wang-head { font-size:10px; letter-spacing:1px; color:#8e846c; }
-.liuren-wang-row { display:flex; gap:10px; margin-top:4px; }
-.liuren-wang-item { display:flex; align-items:baseline; gap:3px; font-size:11px; }
-.liuren-wang-item i { font-style:normal; font-size:9px; color:#8e846c; }
+/* 四柱与要点直接用奇门的 .qimen-pillars / .qimen-facts；这里只保留「四时旺相」，字号配色对齐奇门要点。 */
+.liuren-wang { border-top:1px solid rgba(210,178,112,.16); padding-top:6px; font-size:clamp(14px,1.05vw,17px); letter-spacing:.5px; }
+.liuren-wang-head { color:#bc9353; }
+.liuren-wang-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+.liuren-wang-item { display:flex; align-items:baseline; gap:3px; }
+.liuren-wang-item i { font-style:normal; font-size:.72em; color:#bc9353; }
 /* Two-state editor for 乾/艮/巽/坤: pick up to two life stages in one panel. */
 .qimen-state-editor { position: fixed; z-index: 60; display: grid; grid-template-columns: repeat(4, 46px); gap: 2px; padding: 6px; background: rgba(18, 22, 21, .98); border: 1px solid rgba(230, 207, 149, .35); box-shadow: 0 14px 34px rgba(0, 0, 0, .65); }
 .qimen-state-editor button { height: 30px; padding: 0; border: 1px solid rgba(230, 207, 149, .16); background: none; color: #cbd3c4; font: 14px/1 "Songti SC", "Microsoft YaHei", serif; cursor: pointer; }
@@ -929,12 +922,8 @@ html[data-theme="ink"] .liuren-lesson-row { background: linear-gradient(145deg,r
 html[data-theme="ink"] .liuren-cell:hover { background: linear-gradient(145deg,rgba(70,104,126,.70),rgba(50,82,102,.94)); border-color: rgba(232,240,248,.55); }
 html[data-theme="ink"] .liuren-core { border-color: rgba(232,240,248,.22); }
 html[data-theme="ink"] .liuren-earth,
-html[data-theme="ink"] .liuren-k,
 html[data-theme="ink"] .liuren-block-head,
-html[data-theme="ink"] .liuren-wang-head,
 html[data-theme="ink"] .liuren-core span { color: #9db9cc; }
-html[data-theme="ink"] .liuren-v,
-html[data-theme="ink"] .liuren-pillars b,
 html[data-theme="ink"] .liuren-core em { color: #e6f0f8; }
 html[data-theme="ink"] .liuren-question { color: #e6f0f8; border-color: rgba(232,240,248,.26); }
 html[data-theme="ink"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(52,82,101,.62),rgba(40,66,82,.90)); border-color: rgba(232,240,248,.26); }
@@ -972,12 +961,8 @@ html[data-theme="cinnabar"] .liuren-lesson-row { background: linear-gradient(145
 html[data-theme="cinnabar"] .liuren-cell:hover { background: linear-gradient(145deg,rgba(130,68,66,.70),rgba(94,44,44,.94)); border-color: rgba(214,140,138,.55); }
 html[data-theme="cinnabar"] .liuren-core { border-color: rgba(214,140,138,.22); }
 html[data-theme="cinnabar"] .liuren-earth,
-html[data-theme="cinnabar"] .liuren-k,
 html[data-theme="cinnabar"] .liuren-block-head,
-html[data-theme="cinnabar"] .liuren-wang-head,
 html[data-theme="cinnabar"] .liuren-core span { color: #c9a5a3; }
-html[data-theme="cinnabar"] .liuren-v,
-html[data-theme="cinnabar"] .liuren-pillars b,
 html[data-theme="cinnabar"] .liuren-core em { color: #f2e4dd; }
 html[data-theme="cinnabar"] .liuren-question { color: #f2e4dd; border-color: rgba(214,140,138,.26); }
 html[data-theme="cinnabar"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(103,49,49,.62),rgba(79,36,36,.90)); border-color: rgba(214,140,138,.26); }
@@ -1040,11 +1025,8 @@ html[data-theme="paper"] .liuren-lesson-row {
 html[data-theme="paper"] .liuren-cell:hover { background: linear-gradient(160deg,var(--tile-hover),var(--tile-2) 58%,var(--tile-3)); border-color: rgba(150,120,70,.5); }
 html[data-theme="paper"] .liuren-core { border-color: var(--line); background: rgba(255,255,255,.3); }
 html[data-theme="paper"] .liuren-earth,
-html[data-theme="paper"] .liuren-k,
-html[data-theme="paper"] .liuren-block-head,
-html[data-theme="paper"] .liuren-wang-head { color: var(--muted); }
-html[data-theme="paper"] .liuren-v,
-html[data-theme="paper"] .liuren-pillars b { color: var(--ink); }
+html[data-theme="paper"] .liuren-block-head { color: var(--muted); }
+html[data-theme="paper"] .liuren-wang-head { color: var(--accent); }
 html[data-theme="paper"] .liuren-question { color: var(--ink); border-color: var(--line); background: rgba(255,255,255,.35); }
 html[data-theme="paper"] .liuren-question::placeholder { color: var(--muted); }
 html[data-theme="paper"] .qimen-palace-heading,
@@ -1497,11 +1479,8 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   .liuren-side-left .qimen-date { font-size: 13px; line-height: 1.35; }
   .liuren-side-left .qimen-date:nth-child(2) { font-size: 11px; }
   .liuren-question { font-size: 12px; line-height: 1.45; padding: 5px 8px; margin-top: 4px; min-height: 42px; height: auto; resize: none; overflow-y: auto; }
-  .liuren-pillars b { font-size: 16.5px; }
-  .liuren-factline { font-size: 10px; gap: 5px; }
-  .liuren-k { flex-basis: 30px; }
+  .liuren-wang { font-size: 10px; letter-spacing: 0; }
   .liuren-wang-row { gap: 7px; }
-  .liuren-wang-item { font-size: 10px; }
   .liuren-block-head { font-size: 9px; margin-bottom: 3px; }
   .liuren-pass .motion-surface { padding: 0 4px 4px; }
   .liuren-pass-branch { font-size: 21.06px; }

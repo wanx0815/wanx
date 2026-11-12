@@ -1879,16 +1879,15 @@
       </div>`;
     }).join('');
     const wang = chart.wang;
-    const fact = (key, value) => `<div class="liuren-factline"><span class="liuren-k">${key}</span><span class="liuren-v">${value}</span></div>`;
+    // 右栏直接沿用奇门的四柱三行（年月日时 / 天干 / 地支）与要点排版：字号、颜色、间距都走 .qimen-* 那一套。
+    const pillarRow = pick => (liurenMeta.pillars || []).map(([label, value]) => `<span>${pick(label, value)}</span>`).join('');
+    const fact = (key, value) => `<span class="qimen-fact"><span class="qimen-k">${key}:</span><span class="qimen-v">${value}</span></span>`;
     const right = `<aside class="liuren-side liuren-side-right" aria-label="盘面要点">
       <div class="liuren-side-top">
-        <div class="liuren-pillars">${(liurenMeta.pillars || []).map(([label, value]) => `<span><i>${label}</i><b>${value}</b></span>`).join('')}</div>
-        <div class="liuren-facts">
-          ${fact('旬首', chart.xunShou)}
-          ${fact('空亡', chart.kong.join(''))}
-          ${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}
-          ${fact('占时', `${liurenMeta.hourBranch}时 · ${chart.officials.dayNight}贵${chart.officials.noble}`)}
-          ${fact('课体', chart.principle)}
+        <div class="qimen-pillars">${pillarRow(label => label)}${pillarRow((label, value) => (value || '')[0] || '')}${pillarRow((label, value) => (value || '')[1] || '')}</div>
+        <div class="qimen-facts">
+          <div class="qimen-factline">${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}${fact('旬首', chart.xunShou)}</div>
+          <div class="qimen-factline">${fact('占时', `${chart.officials.dayNight}贵${chart.officials.noble}`)}${fact('空亡', chart.kong.join(''))}</div>
         </div>
       </div>
       <div class="liuren-wang">
