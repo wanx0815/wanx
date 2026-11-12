@@ -1857,7 +1857,7 @@
       <div class="liuren-core-line"><b>${liurenMeta.moonGeneral}</b><span>将</span><i>加</i><b>${liurenMeta.hourBranch}</b><span>时</span></div>
     </div>`;
     const passLabel = ['初传', '中传', '末传'];
-    const passes = chart.passes.map((p, i) => `<div ${nodeAttrs(`liuren.pass.${i}`, passLabel[i])} class="anchor-node liuren-pass" data-element-id="liuren.pass.${i}" data-label="${passLabel[i]} · ${p.branch}">
+    const passes = chart.passes.map((p, i) => `<div ${nodeAttrs(`liuren.pass.${i}`, passLabel[i])} class="anchor-node liuren-pass${chart.kong.includes(p.branch) ? ' liuren-kong' : ''}" data-element-id="liuren.pass.${i}" data-label="${passLabel[i]} · ${p.branch}">
         <div class="motion-surface" data-motion-surface>
           <span class="liuren-pass-six">${liurenSixShort[p.six] || p.six}</span>
           <span class="liuren-pass-dun ${p.dun ? wuxingClass(p.dun) : 'liuren-is-kong'}">${p.dun || '空'}</span>
@@ -1870,7 +1870,7 @@
     const lessons = [3, 2, 1, 0].map(i => {
       const l = chart.lessons[i];
       const general = chart.officials.byHeaven[l.top] || '';
-      return `<div ${nodeAttrs(`liuren.lesson.${i}`, `${lessonNo[i]}课`)} class="anchor-node liuren-lesson" data-element-id="liuren.lesson.${i}" data-label="${lessonNo[i]}课 · ${l.bottom}上${l.top}">
+      return `<div ${nodeAttrs(`liuren.lesson.${i}`, `${lessonNo[i]}课`)} class="anchor-node liuren-lesson${chart.kong.includes(l.top) ? ' liuren-kong' : ''}" data-element-id="liuren.lesson.${i}" data-label="${lessonNo[i]}课 · ${l.bottom}上${l.top}">
         <div class="motion-surface" data-motion-surface>
           <span class="liuren-lesson-gen ${elementClass(liurenGeneralElement[general])}">${liurenGeneralShort[general] || ''}</span>
           <b class="liuren-lesson-top ${wuxingClass(l.top)}">${l.top}</b>
@@ -2468,6 +2468,10 @@
     // Browsers without showPicker: reveal the picker so it can be clicked directly.
     select.classList.add('picker-fallback');
     select.focus();
+    // 选完或失焦就收回去，否则原生下拉会一直盖住宫格里的卦符（手机端只剩文字）。
+    const restore = () => select.classList.remove('picker-fallback');
+    select.addEventListener('change', restore, { once: true });
+    select.addEventListener('blur', restore, { once: true });
   }
   // A tight double click opens the editor; the first click already selected the anchor.
   // 奇门与四柱改为自动排盘，双击不再改字：奇门弹宫位格局，四柱无动作。

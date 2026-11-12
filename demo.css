@@ -705,6 +705,16 @@ html[data-theme="paper"] .qimen-dun-line path { stroke: #9a7530; }
 /* 六亲与遁干之间一道竖线，两头渐变收细、不到上下边框 */
 .liuren-pass-row::before { content:""; position:absolute; top:8px; bottom:8px; left:calc(4px + (100% - 8px) * .2303 + clamp(1.5px,.2vw,2.5px)); width:1px; background:var(--gold); opacity:.42; -webkit-mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent); }
 .liuren-pass, .liuren-lesson { position:relative; }
+/* 三传、四课里落到空亡的地支套方框，与地盘宫里的空亡天盘同一套标记；方框按字宽算，不跟着格子拉伸。
+   三传行高只比字高一点点，方框连描边会略微超出，放开这一行的裁剪，免得框被切掉一条边。 */
+.liuren-pass.liuren-kong { overflow:visible; }
+.liuren-pass.liuren-kong .liuren-pass-branch,
+.liuren-lesson.liuren-kong .liuren-lesson-top { position:relative; }
+.liuren-pass.liuren-kong .liuren-pass-branch::after,
+.liuren-lesson.liuren-kong .liuren-lesson-top::after {
+  content:""; position:absolute; left:50%; top:50%; width:1em; height:1em;
+  transform:translate(-50%,-50%); outline:1px solid currentColor; outline-offset:2px; border-radius:1px; pointer-events:none;
+}
 .liuren-pass { flex:0 0 auto; padding:0; overflow:hidden; }
 .liuren-pass .motion-surface { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); align-items:center; height:100% !important; padding:0 4px 4px; gap:1px; }
 .liuren-pass-six { font-size:14.58px; line-height:1; text-align:center; }
@@ -724,8 +734,8 @@ html[data-theme="paper"] .qimen-dun-line path { stroke: #9a7530; }
 .liuren-lesson-bottom { transform:translateY(-.18em); }
 /* 神煞与上下神之间一道短横 */
 .liuren-lesson-gen { position:relative; width:100%; }
-/* 短横按列铺满，方头首尾相接不留缺口；两端渐变收细，停在外框内边距上。 */
-.liuren-lesson-gen::after { content:""; position:absolute; left:0; right:0; bottom:-.1em; height:1px; background:var(--gold); opacity:.42; }
+/* 短横按列铺满，方头首尾相接不留缺口；两端渐变收细，停在外框内边距上。向上抬两条细线的宽度（2px）。 */
+.liuren-lesson-gen::after { content:""; position:absolute; left:0; right:0; bottom:calc(2px - .1em); height:1px; background:var(--gold); opacity:.42; }
 /* 首尾两列的横线向框内边距里各探出一点，两端渐隐、仍不到边 */
 .liuren-lesson:first-child, .liuren-lesson:last-child { overflow:visible; }
 .liuren-lesson:first-child .liuren-lesson-gen::after { left:calc(0px - clamp(3px,.6vw,7px)); -webkit-mask-image:linear-gradient(90deg,transparent,#000 16%); mask-image:linear-gradient(90deg,transparent,#000 16%); }
