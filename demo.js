@@ -1298,15 +1298,31 @@
     乾: [1, 1, 1], 兑: [0, 1, 1], 离: [1, 0, 1], 震: [0, 0, 1],
     巽: [1, 1, 0], 坎: [0, 1, 0], 艮: [1, 0, 0], 坤: [0, 0, 0],
   };
-  function trigramSVG(name) {
+  function trigramSVG(name, moveIndex) {
     const bars = (trigramLines[name] || trigramLines.坎).map((solid, i) => {
       const y = i * 33;
+      const cls = i === moveIndex ? ' class="is-moving"' : '';
       return solid
-        ? `<rect x="0" y="${y}" width="120" height="12"/>`
-        : `<rect x="0" y="${y}" width="48" height="12"/><rect x="72" y="${y}" width="48" height="12"/>`;
+        ? `<rect${cls} x="0" y="${y}" width="120" height="12"/>`
+        : `<rect${cls} x="0" y="${y}" width="48" height="12"/><rect${cls} x="72" y="${y}" width="48" height="12"/>`;
     }).join('');
     return `<svg class="trigram-svg" viewBox="0 0 120 78" aria-hidden="true">${bars}</svg>`;
   }
+  // 先天八卦数 1..8，用于梅花起卦；trigramLines 是自上而下，起卦要按自下而上的爻序。
+  const meihuaTrigramOrder = ['乾', '兑', '离', '震', '巽', '坎', '艮', '坤'];
+  const meihuaBranchOrder = { 子: 1, 丑: 2, 寅: 3, 卯: 4, 辰: 5, 巳: 6, 午: 7, 未: 8, 申: 9, 酉: 10, 戌: 11, 亥: 12 };
+  // 六十四卦全名，按「上卦 → 下卦」查。
+  const meihuaGuaNames = {
+    乾: { 乾: '乾为天', 兑: '天泽履', 离: '天火同人', 震: '天雷无妄', 巽: '天风姤', 坎: '天水讼', 艮: '天山遁', 坤: '天地否' },
+    兑: { 乾: '泽天夬', 兑: '兑为泽', 离: '泽火革', 震: '泽雷随', 巽: '泽风大过', 坎: '泽水困', 艮: '泽山咸', 坤: '泽地萃' },
+    离: { 乾: '火天大有', 兑: '火泽睽', 离: '离为火', 震: '火雷噬嗑', 巽: '火风鼎', 坎: '火水未济', 艮: '火山旅', 坤: '火地晋' },
+    震: { 乾: '雷天大壮', 兑: '雷泽归妹', 离: '雷火丰', 震: '震为雷', 巽: '雷风恒', 坎: '雷水解', 艮: '雷山小过', 坤: '雷地豫' },
+    巽: { 乾: '风天小畜', 兑: '风泽中孚', 离: '风火家人', 震: '风雷益', 巽: '巽为风', 坎: '风水涣', 艮: '风山渐', 坤: '风地观' },
+    坎: { 乾: '水天需', 兑: '水泽节', 离: '水火既济', 震: '水雷屯', 巽: '水风井', 坎: '坎为水', 艮: '水山蹇', 坤: '水地比' },
+    艮: { 乾: '山天大畜', 兑: '山泽损', 离: '山火贲', 震: '山雷颐', 巽: '山风蛊', 坎: '山水蒙', 艮: '艮为山', 坤: '山地剥' },
+    坤: { 乾: '地天泰', 兑: '地泽临', 离: '地火明夷', 震: '地雷复', 巽: '地风升', 坎: '地水师', 艮: '地山谦', 坤: '坤为地' },
+  };
+  const meihuaMovingLabel = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
   // 中宫：素材库的罗盘动画（透明底）替代宫位字段。
   const baziPillars = [
     { key: 'year', title: '年', stem: '己', branch: '巳', star: '伤官', xunKong: '戌亥', hidden: [{ gan: '丙', ss: '比肩' }, { gan: '庚', ss: '偏财' }, { gan: '戊', ss: '食神' }] },
@@ -1325,22 +1341,36 @@
   const stemElement = { 甲: '木', 乙: '木', 丙: '火', 丁: '火', 戊: '土', 己: '土', 庚: '金', 辛: '金', 壬: '水', 癸: '水' };
   const branchElement = { 子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水' };
   const wuxingClass = value => `wx-${stemElement[value] || branchElement[value] || '土'}`;
+  const elementClass = element => `wx-${element || '土'}`;
   const baziElements = [
     ...baziPillars.map(p => [`bazi.pillar.${p.key}.stem`, `${p.title}干`, '十天干']),
     ...baziPillars.map(p => [`bazi.pillar.${p.key}.branch`, `${p.title}支`, '十二地支']),
     ...baziFortune.map(p => [`bazi.fortune.${p.key}.stem`, `${p.title}干`, '十天干']),
     ...baziFortune.map(p => [`bazi.fortune.${p.key}.branch`, `${p.title}支`, '十二地支']),
   ];
+  // 六格 = 本卦 / 互卦 / 变卦 × 上卦 / 下卦。起卦后写入，也可手动下拉改卦。
   const meihuaSlots = [
-    { id: 'meihua.slot.01', title: '上左', value: '坎' },
-    { id: 'meihua.slot.02', title: '上中', value: '坤' },
-    { id: 'meihua.slot.03', title: '上右', value: '震' },
-    { id: 'meihua.slot.04', title: '下左', value: '巽' },
-    { id: 'meihua.slot.05', title: '下中', value: '乾' },
-    { id: 'meihua.slot.06', title: '下右', value: '兑' },
+    { id: 'meihua.slot.01', title: '本卦上', value: '坎' },
+    { id: 'meihua.slot.02', title: '互卦上', value: '坤' },
+    { id: 'meihua.slot.03', title: '变卦上', value: '震' },
+    { id: 'meihua.slot.04', title: '本卦下', value: '巽' },
+    { id: 'meihua.slot.05', title: '互卦下', value: '乾' },
+    { id: 'meihua.slot.06', title: '变卦下', value: '兑' },
   ];
-  const meihuaElements = [...meihuaSlots.map(slot => [slot.id, slot.title, '后天八卦']), ['meihua.effect', '象意动效位', '装饰']];
-  const allTemplates = { qimen: qimenElements, bazi: baziElements, meihua: meihuaElements };
+  const meihuaElements = [...meihuaSlots.map(slot => [slot.id, slot.title, '本互变']), ['meihua.effect', '象意动效位', '装饰']];
+  // 最近一次起卦结果；为空时六格只是展示用，不标动爻与体用。
+  let meihuaChart = null;
+  let meihuaMeta = null;
+  let meihuaMode = 'time';
+  // 六壬方盘外圈顺时针：上排 巳午未申，右列 酉戌，下排 亥子丑寅，左列 卯辰。
+  const liurenSeats = ['巳','午','未','申','酉','戌','亥','子','丑','寅','卯','辰'];
+  const liurenElements = [
+    ...liurenSeats.map(branch => [`liuren.palace.${branch}`, `${branch}宫`, '天地盘']),
+    ['liuren.pass.0', '初传', '三传'], ['liuren.pass.1', '中传', '三传'], ['liuren.pass.2', '末传', '三传'],
+    ['liuren.lesson.0', '第一课', '四课'], ['liuren.lesson.1', '第二课', '四课'],
+    ['liuren.lesson.2', '第三课', '四课'], ['liuren.lesson.3', '第四课', '四课'],
+  ];
+  const allTemplates = { qimen: qimenElements, bazi: baziElements, liuren: liurenElements, meihua: meihuaElements };
   function nodeAttrs(id, label, note) { return `tabindex="0" role="group" aria-label="${label}"`; }
   function makeOptions(options, selected) {
     return options.map(value => `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`).join('');
@@ -1488,8 +1518,9 @@
     const currentNian = liuNian.find(l => l.getYear() === liuNianYear) || liuNian[0];
     const liuYue = currentNian?.getLiuYue?.() || [];
     const dayunChips = daYun.map(d => `<button type="button" class="luck-chip${d.getIndex() === 0 ? ' luck-chip-pre' : ''}${d.getIndex() === daYunIndex ? ' active' : ''}" data-dayun="${d.getIndex()}"><b>${d.getStartYear()}</b><span>${d.getStartAge()}岁</span>${luckGanZhi(d.getGanZhi(), '起运前')}</button>`).join('');
-    const liunianChips = liuNian.map(l => `<button type="button" class="luck-chip${l.getYear() === liuNianYear ? ' active' : ''}" data-liunian="${l.getYear()}"><b>${l.getYear()}</b><span>${l.getAge()}岁</span>${luckGanZhi(l.getGanZhi(), '')}</button>`).join('');
-    const liuyueChips = liuYue.map(m => `<div class="luck-chip luck-chip-month"><b>${m.getMonthInChinese()}月</b><span class="luck-month-gz">${[...m.getGanZhi()].map(ch => `<i class="${wuxingClass(ch)}">${ch}</i>`).join('')}</span></div>`).join('');
+    const liunianChips = liuNian.map(l => `<button type="button" class="luck-chip${l.getYear() === liuNianYear ? ' active' : ''}" data-liunian="${l.getYear()}"><b>${l.getYear()}</b><span>${l.getAge()}</span>${luckGanZhi(l.getGanZhi(), '')}</button>`).join('');
+    // 流月按节气月排，月份标阳历（寅月=2月 … 丑月=1月）。
+    const liuyueChips = liuYue.map((m, i) => `<div class="luck-chip luck-chip-month"><b>${(i + 1) % 12 + 1}月</b><span class="luck-month-gz">${[...m.getGanZhi()].map(ch => `<i class="${wuxingClass(ch)}">${ch}</i>`).join('')}</span></div>`).join('');
     // One band under the chart: 流年 on the left, 大运 on the right, 流月 across the bottom.
     return `<div class="bazi-luck"><div class="bazi-luck-row"><span class="bazi-luck-label">流年</span><div class="bazi-luck-track" data-luck-track="liunian">${liunianChips}</div></div><div class="bazi-luck-row"><span class="bazi-luck-label">大运</span><div class="bazi-luck-track" data-luck-track="dayun">${dayunChips}</div></div><div class="bazi-luck-row"><span class="bazi-luck-label">流月</span><div class="bazi-luck-track" data-luck-track="liuyue">${liuyueChips}</div></div></div>`;
   }
@@ -1589,13 +1620,293 @@
       if (event.target.classList?.contains('is-flaring')) event.target.classList.remove('is-flaring');
     });
   }
+  // ── 梅花起卦 ───────────────────────────────────
+  // 先天数余 0 取满数（八卦取 8、六爻取 6），这是梅花起卦的通行处理。
+  function meihuaWrapped(value, base) { const rest = value % base; return rest === 0 ? base : rest; }
+  // trigramLines 自上而下存，起卦按自下而上的爻序数，所以统一翻转成 [初,二,三]。
+  const meihuaBottomUp = name => trigramLines[name].slice().reverse();
+  function meihuaTrigramFromLines(bottomUp) {
+    const key = bottomUp.slice().reverse().join('');
+    return meihuaTrigramOrder.find(name => trigramLines[name].join('') === key) || '乾';
+  }
+  function meihuaBuildChart(upper, lower, moving) {
+    const lines = [];
+    meihuaBottomUp(lower).forEach((line, i) => { lines[i + 1] = line; });  // 1 初 2 二 3 三
+    meihuaBottomUp(upper).forEach((line, i) => { lines[i + 4] = line; });  // 4 四 5 五 6 上
+    const changed = lines.slice();
+    changed[moving] = changed[moving] ? 0 : 1;
+    const useIsUpper = moving >= 4;   // 动爻所在之卦为用，另一为体
+    return {
+      upper, lower, moving,
+      mutualLower: meihuaTrigramFromLines([lines[2], lines[3], lines[4]]),
+      mutualUpper: meihuaTrigramFromLines([lines[3], lines[4], lines[5]]),
+      changedLower: meihuaTrigramFromLines([changed[1], changed[2], changed[3]]),
+      changedUpper: meihuaTrigramFromLines([changed[4], changed[5], changed[6]]),
+      yong: useIsUpper ? upper : lower,
+      ti: useIsUpper ? lower : upper,
+    };
+  }
+  function applyMeihuaChart(chart, meta) {
+    meihuaChart = chart;
+    meihuaMeta = meta;
+    meihuaSlots[0].value = chart.upper;
+    meihuaSlots[1].value = chart.mutualUpper;
+    meihuaSlots[2].value = chart.changedUpper;
+    meihuaSlots[3].value = chart.lower;
+    meihuaSlots[4].value = chart.mutualLower;
+    meihuaSlots[5].value = chart.changedLower;
+    renderTemplate('meihua');
+  }
+  function setMeihuaMode(mode) {
+    meihuaMode = mode;
+    $$('[data-meihua-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.meihuaMode === mode));
+    $$('[data-meihua-panel]').forEach(panel => { panel.hidden = panel.dataset.meihuaPanel !== mode; });
+    const summary = $('#meihuaChartSummary');
+    summary.classList.remove('error');
+    summary.textContent = '选择起卦方式并填入内容，点击起卦。';
+  }
+  function openMeihuaChartModal() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    $('#meihuaDateInput').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    $('#meihuaTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const summary = $('#meihuaChartSummary');
+    summary.classList.remove('error');
+    summary.textContent = '选择起卦方式并填入内容，点击起卦。';
+    $('#meihuaChartModal').classList.add('open');
+    $('#meihuaChartModal').setAttribute('aria-hidden', 'false');
+  }
+  function closeMeihuaChartModal() {
+    $('#meihuaChartModal').classList.remove('open');
+    $('#meihuaChartModal').setAttribute('aria-hidden', 'true');
+  }
+  // 左上公历农历：样式与奇门左侧一致，起卦后换成起卦时刻。
+  let meihuaDates = { solar: '', lunar: '' };
+  function meihuaClock() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+  // 农历要历法组件才换算得出，异步补一次；失败就只留公历。
+  function meihuaFillLunar() {
+    if (meihuaDates.lunar || !window.Solar) return;
+    loadLunarLibrary().then(() => {
+      if (meihuaDates.lunar) return;
+      const now = new Date();
+      const solar = window.Solar.fromYmdHms(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), 0);
+      const lunar = solar.getLunar();
+      meihuaDates.lunar = `${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${lunar.getTimeInGanZhi()[1]}时`;
+      if (currentTemplate === 'meihua') renderTemplate('meihua');
+    }).catch(() => {});
+  }
+  async function calculateMeihua() {
+    const summary = $('#meihuaChartSummary');
+    summary.classList.remove('error');
+    summary.textContent = '正在起卦…';
+    try {
+      let upperNo, lowerNo, moving, modeText;
+      if (meihuaMode === 'time') {
+        await loadLunarLibrary();
+        const dateValue = $('#meihuaDateInput').value;
+        if (!dateValue) throw new Error('请先选择公历日期。');
+        const [year, month, day] = dateValue.split('-').map(Number);
+        const [hour, minute] = ($('#meihuaTimeInput').value || '12:00').split(':').map(Number);
+        const solar = window.Solar.fromYmdHms(year, month, day, hour, minute, 0);
+        const lunar = solar.getLunar();
+        const yearNo = meihuaBranchOrder[lunar.getYearInGanZhi()[1]] || 1;
+        const monthNo = Math.abs(lunar.getMonth());
+        const dayNo = lunar.getDay();
+        const hourBranch = lunar.getTimeInGanZhi()[1];
+        const hourNo = meihuaBranchOrder[hourBranch] || 1;
+        const sum = yearNo + monthNo + dayNo;
+        upperNo = meihuaWrapped(sum, 8);
+        lowerNo = meihuaWrapped(sum + hourNo, 8);
+        moving = meihuaWrapped(sum + hourNo, 6);
+        modeText = `时间起卦 · 农历${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${hourBranch}时 · 数 年${yearNo} 月${monthNo} 日${dayNo} 时${hourNo}`;
+        const pad = value => String(value).padStart(2, '0');
+        meihuaDates.solar = `${solar.getYear()}年${solar.getMonth()}月${solar.getDay()}日 ${pad(hour)}:${pad(minute)}`;
+        meihuaDates.lunar = `${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${hourBranch}时`;
+      } else if (meihuaMode === 'char') {
+        const text = ($('#meihuaCharInput').value || '').replace(/\s+/g, '');
+        const count = [...text].length;
+        if (count < 3) throw new Error('汉字起卦至少三个字；一两个字需按笔画起卦，本工具未带笔画库。');
+        const lowerCount = Math.ceil(count / 2);   // 天轻地重：上卦取少的一半
+        const upperCount = count - lowerCount;
+        upperNo = meihuaWrapped(upperCount, 8);
+        lowerNo = meihuaWrapped(lowerCount, 8);
+        moving = meihuaWrapped(count, 6);
+        modeText = `汉字起卦 · ${escapeAttr(text)} · ${count} 字，上${upperCount}下${lowerCount}`;
+      } else {
+        const a = Math.trunc(Number($('#meihuaNumA').value));
+        const b = Math.trunc(Number($('#meihuaNumB').value));
+        if (!(a > 0) || !(b > 0)) throw new Error('请填写两个大于 0 的整数。');
+        upperNo = meihuaWrapped(a, 8);
+        lowerNo = meihuaWrapped(b, 8);
+        moving = meihuaWrapped(a + b, 6);
+        modeText = `数字起卦 · ${a} / ${b}`;
+      }
+      // 汉字 / 数字起卦按当前时刻记日期；农历异步补。
+      if (meihuaMode !== 'time') {
+        meihuaDates.solar = meihuaClock();
+        meihuaDates.lunar = '';
+        meihuaFillLunar();
+      }
+      const upper = meihuaTrigramOrder[upperNo - 1];
+      const lower = meihuaTrigramOrder[lowerNo - 1];
+      const chart = meihuaBuildChart(upper, lower, moving);
+      const guaName = (u, l) => meihuaGuaNames[u][l];
+      const meta = { lines: [
+        modeText,
+        `本卦 <b>${guaName(upper, lower)}</b>（${upper}上${lower}下）· 互卦 <b>${guaName(chart.mutualUpper, chart.mutualLower)}</b> · 变卦 <b>${guaName(chart.changedUpper, chart.changedLower)}</b>`,
+        `${meihuaMovingLabel[moving - 1]}动 · 体 <b>${chart.ti}${trigramElement[chart.ti]}</b> 用 <b>${chart.yong}${trigramElement[chart.yong]}</b>`,
+      ] };
+      applyMeihuaChart(chart, meta);
+      summary.textContent = `${guaName(upper, lower)} · ${meihuaMovingLabel[moving - 1]}动 · 体${chart.ti} 用${chart.yong}`;
+      notify(`梅花起卦完成：${guaName(upper, lower)}，${meihuaMovingLabel[moving - 1]}动。`);
+      closeMeihuaChartModal();
+    } catch (error) {
+      summary.classList.add('error');
+      summary.textContent = error?.message || '起卦失败，请检查输入。';
+    }
+  }
   function renderMeihua() {
     // Empty placement slot (no frame) for 象意动效, level with the top row.
     const effectSlot = `<div class="meihua-effect-slot" data-element-id="meihua.effect" data-label="象意动效位" tabindex="0" role="group" aria-label="象意动效位"></div>`;
-    return `<div class="meihua-board">${effectSlot}${meihuaSlots.map((slot,i) => {
+    const chart = meihuaChart;
+    // 上排前两格是本卦上 / 变卦上，动爻在上卦（4–6）时高亮对应那条线；下排同理。
+    const moveIndexOf = i => {
+      if (!chart) return null;
+      if (i === 0 || i === 2) return chart.moving >= 4 ? 6 - chart.moving : null;
+      if (i === 3 || i === 5) return chart.moving <= 3 ? 3 - chart.moving : null;
+      return null;
+    };
+    const roleOf = i => {
+      if (!chart || (i !== 0 && i !== 3)) return '';
+      if (chart.moving >= 4) return i === 0 ? '用' : '体';
+      return i === 0 ? '体' : '用';
+    };
+    const cards = meihuaSlots.map((slot, i) => {
       const caption = `<div class="trigram-caption wx-${trigramElement[slot.value]}" data-motion-layer>${slot.value}</div>`;
-      return `<div ${nodeAttrs(slot.id,slot.title,'后天八卦独立格')} class="anchor-node hex-card ${i < 3 ? 'row-top' : 'row-bottom'}" data-element-id="${slot.id}" data-label="${slot.title} · ${slot.value}"><div class="motion-surface" data-motion-surface>${caption}<div class="trigram-glyph" data-motion-layer>${trigramSVG(slot.value)}</div><select class="hex-picker-overlay" data-trigram-slot="${i}" aria-label="修改${slot.title}卦象">${trigramOptions.map(item => `<option value="${item.value}" ${item.value === slot.value ? 'selected' : ''}>${item.name}</option>`).join('')}</select></div></div>`;
-    }).join('')}</div>`;
+      const role = roleOf(i);
+      return `<div ${nodeAttrs(slot.id,slot.title,'本互变独立格')} class="anchor-node hex-card ${i < 3 ? 'row-top' : 'row-bottom'}" data-element-id="${slot.id}" data-label="${slot.title} · ${slot.value}"><div class="motion-surface" data-motion-surface>${caption}<div class="trigram-glyph" data-motion-layer>${trigramSVG(slot.value, moveIndexOf(i))}</div><select class="hex-picker-overlay" data-trigram-slot="${i}" aria-label="修改${slot.title}卦象">${trigramOptions.map(item => `<option value="${item.value}" ${item.value === slot.value ? 'selected' : ''}>${item.name}</option>`).join('')}</select></div>${chart ? `<span class="hex-tag">${slot.title}</span>` : ''}${role ? `<span class="hex-role">${role}</span>` : ''}</div>`;
+    }).join('');
+    const meta = meihuaMeta ? `<div class="meihua-meta">${meihuaMeta.lines.map(line => `<span class="meihua-meta-line">${line}</span>`).join('')}</div>` : '';
+    // 左上公历农历：与奇门左侧同一样式，未起卦时先显示当前时刻，农历补到后再重绘。
+    if (!meihuaDates.solar) { meihuaDates.solar = meihuaClock(); meihuaFillLunar(); }
+    const dateLines = [meihuaDates.solar, meihuaDates.lunar].filter(Boolean).map(value => `<div class="qimen-date">${dateHtml(value)}</div>`).join('');
+    return `<div class="meihua-board">${effectSlot}${cards}${meta}<aside class="meihua-dates" aria-label="起卦日期">${dateLines}</aside></div>`;
+  }
+  // ── 大六壬 ─────────────────────────────────────
+  // 方盘 4×4：外圈 12 支顺时针，中心 2×2 放月将与占时。
+  const liurenSeat = {
+    巳:[1,1], 午:[1,2], 未:[1,3], 申:[1,4], 酉:[2,4], 戌:[3,4],
+    亥:[4,4], 子:[4,3], 丑:[4,2], 寅:[4,1], 卯:[3,1], 辰:[2,1],
+  };
+  const liurenGeneralShort = { 贵人:'贵', 螣蛇:'蛇', 朱雀:'朱', 六合:'合', 勾陈:'勾', 青龙:'青', 天空:'空', 白虎:'虎', 太常:'常', 玄武:'玄', 太阴:'阴', 天后:'后' };
+  const liurenSixShort = { 妻财:'财', 父母:'父', 兄弟:'兄', 官鬼:'官', 子孙:'子' };
+  // 十二天将五行：贵勾空常属土，蛇朱属火，合龙属木，虎阴属金，玄后属水。
+  const liurenGeneralElement = { 贵人:'土', 螣蛇:'火', 朱雀:'火', 六合:'木', 勾陈:'土', 青龙:'木', 天空:'土', 白虎:'金', 太常:'土', 玄武:'水', 太阴:'金', 天后:'水' };
+  const liurenJiangName = { 亥:'登明', 戌:'河魁', 酉:'从魁', 申:'传送', 未:'小吉', 午:'胜光', 巳:'太乙', 辰:'天罡', 卯:'太冲', 寅:'功曹', 丑:'大吉', 子:'神后' };
+  const liurenMeta = {
+    solar: '2026年10月7日 23:00',
+    lunar: '二〇二六年八月廿七 子时',
+    question: '',
+    dayStem: '乙', dayBranch: '卯', hourBranch: '子', monthBranch: '酉', moonGeneral: '辰', dayNight: 'night',
+  };
+  // 引擎是同步纯函数，首屏直接用占位干支出盘，等历法库就绪后再按当前时间重排。
+  let liurenChart = null;
+  function rebuildLiurenChart() {
+    if (!window.LiurenEngine) return;
+    try {
+      liurenChart = window.LiurenEngine.build({
+        dayStem: liurenMeta.dayStem, dayBranch: liurenMeta.dayBranch,
+        hourBranch: liurenMeta.hourBranch, moonGeneral: liurenMeta.moonGeneral,
+        monthBranch: liurenMeta.monthBranch, dayNight: liurenMeta.dayNight,
+      });
+    } catch (error) {
+      liurenChart = null;
+      console.warn('[六壬]', error);
+    }
+  }
+  rebuildLiurenChart();
+
+  function renderLiuren() {
+    const chart = liurenChart;
+    const left = `<aside class="liuren-side liuren-side-left" aria-label="起课记录">
+      <div class="qimen-date">${dateHtml(liurenMeta.solar)}</div>
+      <div class="qimen-date">${dateHtml(liurenMeta.lunar)}</div>
+      <textarea class="liuren-question" rows="1" placeholder="所问之事" aria-label="所问之事">${escapeAttr(liurenMeta.question)}</textarea>
+    </aside>`;
+    if (!chart) {
+      return `<div class="liuren-stage">${left}<div class="liuren-center"><div class="liuren-empty">六壬排盘组件未加载。</div></div></div>`;
+    }
+    const cells = chart.palaces.map(p => {
+      const seat = liurenSeat[p.earth];
+      const id = `liuren.palace.${p.earth}`;
+      const label = `${p.earth}宫 · 天盘${p.heaven}${p.general ? ' ' + p.general : ''}`;
+      return `<div ${nodeAttrs(id, label)} class="anchor-node liuren-cell" data-element-id="${id}" data-label="${label}" style="grid-row:${seat[0]};grid-column:${seat[1]}">
+        <div class="motion-surface" data-motion-surface>
+          <span class="liuren-gen ${elementClass(liurenGeneralElement[p.general])}">${liurenGeneralShort[p.general] || ''}</span>
+          <span class="liuren-heaven ${wuxingClass(p.heaven)}">${p.heaven}</span>
+          <span class="liuren-foot"><i class="liuren-dun ${p.dun ? wuxingClass(p.dun) : 'liuren-is-kong'}">${p.dun || '空'}</i><b class="liuren-earth">${p.earth}</b></span>
+        </div>
+      </div>`;
+    }).join('');
+    const core = `<div class="liuren-core" style="grid-row:2 / 4;grid-column:2 / 4">
+      <em>${chart.principle}</em>
+      <div class="liuren-core-line"><b>${liurenMeta.moonGeneral}</b><span>将</span><i>加</i><b>${liurenMeta.hourBranch}</b><span>时</span></div>
+    </div>`;
+    const passLabel = ['初传', '中传', '末传'];
+    const passes = chart.passes.map((p, i) => `<div ${nodeAttrs(`liuren.pass.${i}`, passLabel[i])} class="anchor-node liuren-pass" data-element-id="liuren.pass.${i}" data-label="${passLabel[i]} · ${p.branch}">
+        <div class="motion-surface" data-motion-surface>
+          <span class="liuren-pass-six">${liurenSixShort[p.six] || p.six}</span>
+          <span class="liuren-pass-dun ${p.dun ? wuxingClass(p.dun) : 'liuren-is-kong'}">${p.dun || '空'}</span>
+          <span class="liuren-pass-branch ${wuxingClass(p.branch)}">${p.branch}</span>
+          <span class="liuren-pass-gen ${elementClass(liurenGeneralElement[p.general])}">${liurenGeneralShort[p.general] || ''}</span>
+        </div>
+      </div>`).join('');
+    const lessonNo = ['一', '二', '三', '四'];
+    // 四课独立成块，按 四三二一 自左向右排列。
+    const lessons = [3, 2, 1, 0].map(i => {
+      const l = chart.lessons[i];
+      const general = chart.officials.byHeaven[l.top] || '';
+      return `<div ${nodeAttrs(`liuren.lesson.${i}`, `${lessonNo[i]}课`)} class="anchor-node liuren-lesson" data-element-id="liuren.lesson.${i}" data-label="${lessonNo[i]}课 · ${l.bottom}上${l.top}">
+        <div class="motion-surface" data-motion-surface>
+          <span class="liuren-lesson-gen ${elementClass(liurenGeneralElement[general])}">${liurenGeneralShort[general] || ''}</span>
+          <b class="liuren-lesson-top ${wuxingClass(l.top)}">${l.top}</b>
+          <span class="liuren-lesson-bottom ${wuxingClass(l.bottom)}">${l.bottom}</span>
+        </div>
+      </div>`;
+    }).join('');
+    const wang = chart.wang;
+    const fact = (key, value) => `<div class="liuren-factline"><span class="liuren-k">${key}</span><span class="liuren-v">${value}</span></div>`;
+    const right = `<aside class="liuren-side liuren-side-right" aria-label="盘面要点">
+      <div class="liuren-pillars">${(liurenMeta.pillars || []).map(([label, value]) => `<span><i>${label}</i><b>${value}</b></span>`).join('')}</div>
+      <div class="liuren-facts">
+        ${fact('旬首', chart.xunShou)}
+        ${fact('空亡', chart.kong.join(''))}
+        ${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}
+        ${fact('占时', `${liurenMeta.hourBranch}时 · ${chart.officials.dayNight}贵${chart.officials.noble}`)}
+        ${fact('课体', chart.principle)}
+      </div>
+      <div class="liuren-wang">
+        <span class="liuren-wang-head">${chart.season} · 四时旺相</span>
+        <div class="liuren-wang-row">${['旺', '相', '休', '囚', '死'].map(key => `<span class="liuren-wang-item"><i>${key}</i><b class="${wuxingClass(wang[key])}">${wang[key]}</b></span>`).join('')}</div>
+      </div>
+    </aside>`;
+    return `<div class="liuren-stage">${left}
+      <div class="liuren-center">
+        <div class="liuren-top">
+          <section class="liuren-block"><div class="liuren-block-head"><span>三传</span></div><div class="liuren-pass-row">${passes}</div></section>
+          <section class="liuren-block"><div class="liuren-block-head"><span>四课</span></div><div class="liuren-lesson-row">${lessons}</div></section>
+        </div>
+        <section class="liuren-block liuren-plate-block"><div class="liuren-plate">${cells}${core}</div></section>
+      </div>
+      ${right}</div>`;
+  }
+  function wireLiurenQuestion() {
+    const question = $('.liuren-question', boardContent);
+    if (question) question.addEventListener('input', () => { liurenMeta.question = question.value; });
   }
   function renderTemplate(template) {
     const previousTemplate = currentTemplate;
@@ -1610,16 +1921,19 @@
     if (template !== 'qimen') { qimenPatterns.mode = null; }
     currentTemplate = template;
     const elementList = allTemplates[template];
-    boardContent.innerHTML = template === 'qimen' ? renderQimen() : template === 'bazi' ? renderBazi() : renderMeihua();
-    stageSurface.classList.remove('template-qimen','template-bazi','template-meihua');
+    const renderers = { qimen: renderQimen, bazi: renderBazi, liuren: renderLiuren, meihua: renderMeihua };
+    boardContent.innerHTML = renderers[template]();
+    stageSurface.classList.remove('template-qimen','template-bazi','template-liuren','template-meihua');
     stageSurface.classList.add(`template-${template}`);
-    $('#stageTitle').textContent = template === 'qimen' ? '奇门九宫' : template === 'bazi' ? '四柱' : '梅花卦象';
+    $('#stageTitle').textContent = ({ qimen: '奇门九宫', bazi: '四柱', liuren: '大六壬', meihua: '梅花卦象' })[template];
     $('#stageSubtitle').textContent = '';
     $('#baziEntryTrigger').hidden = template !== 'bazi';
     $('#qimenChartTrigger').hidden = template !== 'qimen';
+    $('#liurenChartTrigger').hidden = template !== 'liuren';
+    $('#meihuaChartTrigger').hidden = template !== 'meihua';
     $('#qimenWuxingOption').hidden = template !== 'qimen';
     $$('.template-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.template === template));
-    selectedId = template === 'qimen' ? 'qimen.palace.center' : elementList[0][0];
+    selectedId = template === 'qimen' ? 'qimen.palace.center' : template === 'liuren' ? 'liuren.palace.子' : elementList[0][0];
     // 连接下拉在这里一次建好，wireTemplateEditors 不再重复重建。
     refreshTargetOptions({ source: selectedId, target: elementList.find(e => e[0] !== selectedId)[0], converge: '' });
     wireAnchors();
@@ -1627,6 +1941,7 @@
     wireQimenEditors();
     wireBaziLuck();
     if (template === 'qimen') wireQimenPatterns();
+    if (template === 'liuren') wireLiurenQuestion();
     updateSelected();
     clearAllEffectsQuiet();
     // 案例库按模板分开：只有真正切换模板才重置抽屉；同模板重绘（切换大运/流年、重排盘）保留当前反馈页。
@@ -1679,6 +1994,14 @@
         const slot = meihuaSlots[Number(select.dataset.trigramSlot)];
         if (!anchor || !trigram || !slot) return;
         slot.value = trigram.name;
+        // 手动改卦即脱离起卦结果：动爻高亮与体用标号会失真，整盘重绘清掉。
+        if (meihuaChart) {
+          meihuaChart = null;
+          meihuaMeta = null;
+          renderTemplate('meihua');
+          notify(`${slot.title} 已改为 ${trigram.name}，已脱离起卦结果。`);
+          return;
+        }
         anchor.querySelector('.trigram-glyph').innerHTML = trigramSVG(trigram.name);
         const caption = anchor.querySelector('.trigram-caption');
         caption.textContent = trigram.name;
@@ -1944,6 +2267,65 @@
       if (silent) console.warn('[自动起局]', error);
     }
   }
+  function openLiurenChartModal() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    $('#liurenDateInput').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    $('#liurenTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const summary = $('#liurenChartSummary');
+    summary.classList.remove('error');
+    summary.textContent = '选择日期和时间后，点击起课。';
+    $('#liurenChartModal').classList.add('open');
+    $('#liurenChartModal').setAttribute('aria-hidden', 'false');
+  }
+  function closeLiurenChartModal() {
+    $('#liurenChartModal').classList.remove('open');
+    $('#liurenChartModal').setAttribute('aria-hidden', 'true');
+  }
+  async function calculateLiurenFromDate(options = {}) {
+    const silent = !!options.silent;
+    const summary = $('#liurenChartSummary');
+    summary.classList.remove('error');
+    if (!silent) summary.textContent = '正在加载历法组件并起课…';
+    try {
+      await loadLunarLibrary();
+      if (!window.LiurenEngine) throw new Error('六壬排盘组件未加载，请检查 demo/vendor/liuren-engine.js。');
+      const dateValue = $('#liurenDateInput').value;
+      if (!dateValue) throw new Error('请先选择公历日期。');
+      const [year, month, day] = dateValue.split('-').map(Number);
+      const [hour, minute] = ($('#liurenTimeInput').value || '12:00').split(':').map(Number);
+      const solar = window.Solar.fromYmdHms(year, month, day, hour, minute, 0);
+      const lunar = solar.getLunar();
+      const dayGz = lunar.getDayInGanZhiExact();
+      const hourGz = lunar.getTimeInGanZhi();
+      const yearGz = lunar.getYearInGanZhi();
+      const monthGz = lunar.getMonthInGanZhi();
+      // 中气换将；占时取正时。昼夜贵人固定按 卯–申 为昼。
+      const prevQi = lunar.getPrevQi();
+      const hourBranch = hourGz[1];
+      liurenMeta.dayStem = dayGz[0];
+      liurenMeta.dayBranch = dayGz[1];
+      liurenMeta.hourBranch = hourBranch;
+      liurenMeta.monthBranch = monthGz[1];
+      liurenMeta.moonGeneral = (prevQi && window.LiurenEngine.QI_JIANG[prevQi.getName()]) || '亥';
+      liurenMeta.dayNight = '卯辰巳午未申'.indexOf(hourBranch) >= 0 ? 'day' : 'night';
+      liurenMeta.solar = `${year}年${month}月${day}日 ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      liurenMeta.lunar = `${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} ${hourBranch}时`;
+      liurenMeta.pillars = [['年', yearGz], ['月', monthGz], ['日', dayGz], ['时', hourGz]];
+      rebuildLiurenChart();
+      renderTemplate('liuren');
+      const chart = liurenChart;
+      summary.textContent = `${dayGz}日 ${hourBranch}时 · 月将${liurenMeta.moonGeneral} · ${chart.principle} · 三传 ${chart.passes.map(p => p.branch).join('')} · 空亡 ${chart.kong.join('')}`;
+      if (!silent) {
+        notify(`起课完成：${chart.principle}，三传 ${chart.passes.map(p => p.branch).join(' → ')}。`);
+        closeLiurenChartModal();
+      }
+    } catch (error) {
+      summary.classList.add('error');
+      summary.textContent = error?.message || '起课失败，请检查输入日期和时间。';
+      if (silent) console.warn('[六壬自动起课]', error);
+    }
+  }
   function clearAllEffectsQuiet() {
     [...handles.keys()].forEach(id => stopHandle(id, true));
     overlay.innerHTML = '';
@@ -2074,6 +2456,7 @@
     if (btn.dataset.template === currentTemplate) return;
     $$('.template-tab').forEach(b => b.classList.toggle('active', b === btn));
     requestAnimationFrame(() => renderTemplate(btn.dataset.template));
+    if (btn.dataset.template === 'liuren') autoLiurenToNow().catch(() => {});
   }));
   function openFieldPicker(select) {
     if (!select) return;
@@ -2222,8 +2605,19 @@
   $('#qimenChartClose').addEventListener('click', closeQimenChartModal);
   $('#qimenChartCancel').addEventListener('click', closeQimenChartModal);
   $('#qimenCalculateBtn').addEventListener('click', calculateQimenFromDate);
+  $('#liurenChartTrigger').addEventListener('click', openLiurenChartModal);
+  $('#liurenChartClose').addEventListener('click', closeLiurenChartModal);
+  $('#liurenChartCancel').addEventListener('click', closeLiurenChartModal);
+  $('#liurenCalculateBtn').addEventListener('click', calculateLiurenFromDate);
   $('#qimenChartModal').addEventListener('click', event => { if (event.target === $('#qimenChartModal')) closeQimenChartModal(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('#qimenChartModal').classList.contains('open')) closeQimenChartModal(); });
+  $('#meihuaChartTrigger').addEventListener('click', openMeihuaChartModal);
+  $('#meihuaChartClose').addEventListener('click', closeMeihuaChartModal);
+  $('#meihuaCancel').addEventListener('click', closeMeihuaChartModal);
+  $('#meihuaCalculateBtn').addEventListener('click', calculateMeihua);
+  $$('[data-meihua-mode]').forEach(btn => btn.addEventListener('click', () => setMeihuaMode(btn.dataset.meihuaMode)));
+  $('#meihuaChartModal').addEventListener('click', event => { if (event.target === $('#meihuaChartModal')) closeMeihuaChartModal(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('#meihuaChartModal').classList.contains('open')) closeMeihuaChartModal(); });
   $('#lunarMonthInput').innerHTML = '<option value="" selected>选择月份</option>' + Array.from({length:12},(_,i)=>`<option value="${i+1}">${i+1}月</option>`).join('');
   setDateDefaultsIfEmpty();
   setBaziDateMode('solar');
@@ -2514,6 +2908,9 @@
         qimenMeta.question = item.question || item.name || '';
         await calculateQimenFromDate();
       } else {
+        // 案例只存六卦，起卦方式与动爻没有记录，载入后按展示态呈现。
+        meihuaChart = null;
+        meihuaMeta = null;
         (item.trigrams || []).forEach((value, i) => { if (meihuaSlots[i]) meihuaSlots[i].value = value; });
         renderTemplate('meihua');
       }
@@ -2819,5 +3216,17 @@
     $('#qimenDateInput').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     $('#qimenTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     await calculateQimenFromDate({ silent: true });
+  }
+  // 首次切到六壬时按当前时间起课；示例盘只当日历法库下载完成前的占位。
+  let liurenAuto = false;
+  async function autoLiurenToNow() {
+    if (liurenAuto) return;
+    liurenAuto = true;
+    await loadLunarLibrary();
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    $('#liurenDateInput').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    $('#liurenTimeInput').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    await calculateLiurenFromDate({ silent: true });
   }
 })();

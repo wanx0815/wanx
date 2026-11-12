@@ -46,6 +46,7 @@
           <div class="template-switch" role="tablist" aria-label="动效锚点样例模板">
             <button class="template-tab" data-template="bazi" role="tab">四柱</button>
             <button class="template-tab active" data-template="qimen" role="tab">奇门</button>
+            <button class="template-tab" data-template="liuren" role="tab">六壬</button>
             <button class="template-tab" data-template="meihua" role="tab">梅花</button>
           </div>
           <div class="stage-toolbar-right">
@@ -73,6 +74,8 @@
               </div>
               <button class="bazi-entry-trigger" id="baziEntryTrigger" type="button" hidden>排盘</button>
               <button class="bazi-entry-trigger qimen-chart-trigger" id="qimenChartTrigger" type="button" hidden>起局</button>
+              <button class="bazi-entry-trigger liuren-chart-trigger" id="liurenChartTrigger" type="button" hidden>起课</button>
+              <button class="bazi-entry-trigger meihua-chart-trigger" id="meihuaChartTrigger" type="button" hidden>起卦</button>
               <svg class="motion-overlay" id="motionOverlay" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
             </div>
           </div>
@@ -282,10 +285,47 @@
         <div class="bazi-date-actions"><button class="quiet-button" id="qimenChartCancel" type="button">取消</button><button class="primary-button" id="qimenCalculateBtn" type="button">起局并填入九宫</button></div>
       </div>
     </div>
+    <div class="bazi-date-modal qimen-chart-modal" id="liurenChartModal" aria-hidden="true">
+      <div class="bazi-date-dialog" role="dialog" aria-modal="true" aria-labelledby="liurenChartTitle">
+        <div class="bazi-date-head"><div><div class="panel-kicker">LIUREN CHART INPUT</div><h2 id="liurenChartTitle">六壬起课</h2></div><button class="icon-button" id="liurenChartClose" type="button" aria-label="关闭">×</button></div>
+        <div class="date-fields date-time-row">
+          <label>公历日期<input id="liurenDateInput" type="date" value="" /></label>
+          <label>时刻<input id="liurenTimeInput" type="time" value="12:00" /></label>
+        </div>
+        <div class="bazi-date-note">月将按中气自动换将，昼夜贵人按 卯–申 为昼自动判。排出天地盘、四课、九宗门三传、十二天将、遁干、空亡与四时旺相。只排盘，不判断吉凶。</div>
+        <div class="bazi-date-summary" id="liurenChartSummary" aria-live="polite">选择日期和时间后，点击起课。</div>
+        <div class="bazi-date-actions"><button class="quiet-button" id="liurenChartCancel" type="button">取消</button><button class="primary-button" id="liurenCalculateBtn" type="button">起课并填入盘面</button></div>
+      </div>
+    </div>
+    <div class="bazi-date-modal qimen-chart-modal" id="meihuaChartModal" aria-hidden="true">
+      <div class="bazi-date-dialog" role="dialog" aria-modal="true" aria-labelledby="meihuaChartTitle">
+        <div class="bazi-date-head"><div><div class="panel-kicker">MEIHUA DIVINATION</div><h2 id="meihuaChartTitle">梅花起卦</h2></div><button class="icon-button" id="meihuaChartClose" type="button" aria-label="关闭">×</button></div>
+        <div class="date-mode-switch" role="group" aria-label="起卦方式">
+          <button type="button" class="active" data-meihua-mode="time">时间起卦</button>
+          <button type="button" data-meihua-mode="char">汉字起卦</button>
+          <button type="button" data-meihua-mode="number">数字起卦</button>
+        </div>
+        <div class="date-fields date-time-row" data-meihua-panel="time">
+          <label>公历日期<input id="meihuaDateInput" type="date" value="" /></label>
+          <label>时刻<input id="meihuaTimeInput" type="time" value="12:00" /></label>
+        </div>
+        <div class="date-fields" data-meihua-panel="char" hidden>
+          <label>汉字<input id="meihuaCharInput" type="text" maxlength="60" placeholder="至少三个字，如：今日天气甚好" /></label>
+        </div>
+        <div class="date-fields date-time-row" data-meihua-panel="number" hidden>
+          <label>第一个数<input id="meihuaNumA" type="number" min="1" step="1" /></label>
+          <label>第二个数<input id="meihuaNumB" type="number" min="1" step="1" /></label>
+        </div>
+        <div class="bazi-date-note">时间起卦取农历年支序数加月日时；汉字起卦按字数分半（天轻地重，上卦取少的一半，三字起）；数字起卦两数分取上下卦、和数除六取动爻。只排盘，不判断吉凶。</div>
+        <div class="bazi-date-summary" id="meihuaChartSummary" aria-live="polite">选择起卦方式并填入内容，点击起卦。</div>
+        <div class="bazi-date-actions"><button class="quiet-button" id="meihuaCancel" type="button">取消</button><button class="primary-button" id="meihuaCalculateBtn" type="button">起卦并填入卦象</button></div>
+      </div>
+    </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="presentation-exit" id="presentationExit"><span>展示模式</span><button id="exitPresentationBtn">退出展示 Esc</button></div>
   </div>
   <script src="./vendor/qimen-engine.js"></script>
+  <script src="./vendor/liuren-engine.js"></script>
   <script src="./demo.js"></script>
 </body>
 </html>

@@ -254,6 +254,8 @@ input[type="range"] { width: 100%; accent-color: #c9a76c; height: 13px; }
 .bazi-entry-trigger:hover { background:rgba(217,184,117,.12); }
 .template-bazi .bazi-entry-trigger { display:block; }
 .template-qimen .bazi-entry-trigger, .template-meihua .bazi-entry-trigger { display:none; }
+/* 梅花起卦入口：与四柱「排盘」同位置同尺寸。 */
+.stage-surface.template-meihua .meihua-chart-trigger { display:block; }
 
 /* Qimen: compact but readable five-field palace. State text is intentionally smallest. */
 .qimen-board {
@@ -575,6 +577,7 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 .luck-chip > span { font-size: 8px; color: #77776f; white-space: nowrap; }
 /* 干、支各占一行，颜色由 wx-* 决定，这里不设 color 以免盖掉五行色。 */
 .luck-chip em { font-style: normal; font-size: 12px; line-height: 1.1; letter-spacing: 0; white-space: nowrap; }
+.luck-chip i { font-style: normal; }
 .luck-chip .luck-chip-empty { font-size: 9px; color: #77776f; letter-spacing: 0; white-space: nowrap; }
 .luck-chip-month { cursor: default; }
 .luck-chip:hover { border-color: rgba(217, 184, 117, .42); }
@@ -599,6 +602,25 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 .trigram-caption.wx-土 { color: #b5793f; }
 .trigram-caption.wx-金 { color: #f0c04a; }
 .trigram-caption.wx-水 { color: #6f9fd6; }
+/* 梅花排盘：格角标注本/互/变与体用，动爻那一条发光。 */
+.hex-tag { position: absolute; z-index: 2; font-size: 10px; letter-spacing: 1px; color: #8b8577; pointer-events: none; }
+.hex-tag b { color: #d7bd85; font-weight: 400; }
+.hex-card.row-top .hex-tag { top: 8px; left: 10px; }
+.hex-card.row-bottom .hex-tag { bottom: 8px; left: 10px; }
+.hex-role { position: absolute; z-index: 2; top: 8px; right: 10px; padding: 1px 5px; font-size: 10px; line-height: 1.2; color: #e7d4ad; border: 1px solid rgba(217,184,117,.45); border-radius: 3px; pointer-events: none; }
+.hex-card.row-bottom .hex-role { top: auto; bottom: 8px; }
+.trigram-svg .is-moving { fill: #ffd05e; filter: drop-shadow(0 0 6px rgba(255,208,94,.95)); }
+/* 起卦摘要挂在盘下方，不参与宫格排版。 */
+.meihua-meta { position: absolute; left: 0; right: 0; top: calc(100% + 14px); display: flex; flex-direction: column; gap: 4px; align-items: center; color: #8d8a7d; font-size: clamp(11px, .92vw, 14px); letter-spacing: .5px; line-height: 1.45; text-align: center; pointer-events: none; }
+.meihua-meta b { color: #e0cfa6; font-weight: 400; }
+.meihua-meta .meihua-meta-line { white-space: nowrap; }
+/* 左上公历农历：与奇门左侧日期同一套 .qimen-date 样式，挂在盘左上外侧。 */
+.meihua-dates { position: absolute; right: calc(100% + 20px); bottom: calc(100% + 32px); z-index: 3; width: max-content; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
+.meihua-dates .qimen-date { font-size: clamp(12px, .95vw, 14px); line-height: 1.35; }
+/* 小窗口时棋盘变宽、左侧放不下日期，改挂到盘上沿左对齐，避免贴到舞台边。 */
+@media (max-width: 1240px) {
+  .meihua-dates { left: 0; right: auto; bottom: calc(100% + 4px); }
+}
 
 /* Qimen: content hugs the left, right and top edges; the centre stays open. */
 .qimen-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2.05vw, 34px); }
@@ -660,6 +682,76 @@ html[data-theme="paper"] .qimen-dun-line path { stroke: #9a7530; }
 [data-element-id="qimen.palace.kun"] .qimen-horse-slot { top: 10px; bottom: auto; }
 [data-element-id="qimen.palace.gen"] .qimen-horse-slot,
 [data-element-id="qimen.palace.qian"] .qimen-horse-slot { bottom: 10px; top: auto; }
+/* ===== 大六壬：左记录 / 中三传四课天地盘 / 右要点 ===== */
+.liuren-stage { width:100%; height:100%; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2.1fr) minmax(0,1fr); gap:clamp(12px,1.4vw,24px); align-items:stretch; padding:clamp(14px,1.4vw,22px) clamp(10px,1.2vw,20px); }
+.liuren-side { display:flex; flex-direction:column; gap:8px; min-width:0; align-self:start; }
+.liuren-side-left, .liuren-side-right { padding-top:clamp(14px,1.2vw,20px); }
+.liuren-question { width:100%; padding:5px 8px; border:1px solid rgba(210,178,112,.22); background:rgba(255,255,255,.015); color:#efe2bf; font:inherit; font-size:clamp(14px,1vw,16px); line-height:1.45; outline:none; resize:none; field-sizing:content; min-height:1.8em; }
+.liuren-question::placeholder { color:#6c6759; }
+.liuren-question:focus { border-color:rgba(230,207,149,.45); }
+.liuren-center { display:flex; flex-direction:column; align-items:center; gap:7px; min-width:0; width:100%; max-width:400px; justify-self:center; height:100%; min-height:0; }
+.liuren-center > * { width:100%; }
+/* 三传/四课这一行不超过下方盘面的左右两侧 */
+.liuren-top { width:83.3333%; display:grid; grid-template-columns:minmax(0,.89fr) minmax(0,1fr); gap:7px; align-items:stretch; }
+.liuren-block { display:flex; flex-direction:column; min-width:0; flex:0 0 auto; }
+.liuren-empty { color:#8e846c; font-size:12px; padding:20px; }
+.liuren-block-head { display:flex; align-items:baseline; justify-content:space-between; font-size:10px; letter-spacing:2px; color:#8e846c; margin-bottom:3px; }
+.liuren-block-head b { color:var(--gold); font-weight:500; letter-spacing:1px; }
+/* 三传三行合并在同一外框里 */
+.liuren-pass-row { display:flex; flex-direction:column; gap:0; flex:1 1 auto; border:1px solid rgba(210,178,112,.24); border-radius:3px; background:linear-gradient(145deg,rgba(29,31,31,.95),rgba(17,20,22,.9)); overflow:hidden; }
+.liuren-pass, .liuren-lesson { position:relative; }
+.liuren-pass { flex:1 1 0; padding:0; overflow:hidden; }
+.liuren-pass .motion-surface { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); align-items:center; height:100% !important; padding:0 4px 4px; gap:1px; }
+.liuren-pass-six { font-size:14.58px; line-height:1; text-align:center; }
+.liuren-pass-dun { font-size:16.2px; line-height:1; text-align:center; }
+.liuren-pass-branch { font-size:clamp(22.68px,1.782vw,27.54px); line-height:1; text-align:center; }
+.liuren-pass-gen { font-size:17.82px; line-height:1; text-align:center; }
+/* 四课四格合并到同一外框 */
+.liuren-lesson-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; flex:1 1 auto; border:1px solid rgba(210,178,112,.24); border-radius:3px; background:linear-gradient(145deg,rgba(29,31,31,.95),rgba(17,20,22,.9)); overflow:hidden; }
+.liuren-lesson { position:relative; overflow:hidden; }
+.liuren-lesson .motion-surface { width:100%; height:100% !important; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:1px 0; }
+/* 神煞、上神、下神同一字号（神煞小 0.1 倍） */
+.liuren-lesson-gen, .liuren-lesson-top, .liuren-lesson-bottom { font-size:clamp(19.44px,1.5795vw,24.3px); font-weight:400; line-height:1.83; text-align:center; }
+.liuren-lesson-gen { font-size:clamp(17.46px,1.422vw,21.87px); }
+.liuren-lesson-bottom { transform:translateY(-.36em); }
+/* 神煞与上下神之间一道短横 */
+.liuren-lesson-gen { position:relative; }
+.liuren-lesson-gen::after { content:""; position:absolute; left:50%; bottom:.28em; width:.42em; height:1px; margin-left:-.21em; border-radius:1px; background:currentColor; opacity:.34; }
+/* 地盘比上方三传/四课那一行窄六分之一 */
+.liuren-plate-block { flex:1 1 auto; min-height:0; width:83.3333%; }
+.liuren-plate { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:5px; width:100%; aspect-ratio:1; max-height:100%; }
+.liuren-cell { border:1px solid rgba(210,178,112,.22); border-radius:3px; background:linear-gradient(145deg,rgba(29,31,31,.95),rgba(17,20,22,.9)); }
+.liuren-cell:hover { border-color:rgba(217,184,117,.55); background:linear-gradient(145deg,rgba(48,41,29,.62),rgba(18,21,23,.92)); }
+.liuren-cell .motion-surface { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.liuren-gen { position:absolute; top:2px; left:5px; font-size:14.4px; line-height:1; }
+/* 天盘再上提 3px（1.25 抵字号差 + 1.75 视觉微调）：与遁干墨迹顶线齐平。 */
+.liuren-heaven { position:absolute; left:37.5%; top:calc(62.5% - 6px); transform:translate(-50%,-50%); font-size:clamp(21.6px,1.8vw,31.2px); line-height:1; }
+/* 遁干单独按顶边定位，与天盘顶齐平；地支仍是原来的贴底位置，不受牵连。 */
+.liuren-foot { position:static; }
+.liuren-dun { position:absolute; right:4px; top:calc(62.5% - 3px - clamp(10.8px,.9vw,15.6px)); font-style:normal; font-size:14.4px; line-height:1; }
+.liuren-earth { position:absolute; right:4px; bottom:3px; font-size:10.725px; color:#6f6a5d; line-height:1; }
+/* 旬空两支无遁干，该位置直接写「空」 */
+.liuren-is-kong { color:#c98f4e; }
+/* 盘心：月将加时 + 课体 */
+.liuren-core { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:1px solid rgba(210,178,112,.14); border-radius:3px; background:rgba(255,255,255,.012); }
+.liuren-core-line { display:flex; align-items:baseline; gap:2px; }
+.liuren-core b { font-size:clamp(15px,1.2vw,20px); font-weight:400; color:var(--gold); line-height:1.1; }
+.liuren-core span { font-size:9px; color:#8e846c; }
+.liuren-core i { font-style:normal; font-size:9px; color:#6f6a5d; margin:0 2px; }
+.liuren-core em { font-style:normal; font-size:clamp(17px,1.35vw,22px); letter-spacing:2px; text-indent:2px; color:#b6a888; }
+.liuren-pillars { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.liuren-pillars span { display:flex; flex-direction:column; align-items:center; gap:2px; border-bottom:1px solid rgba(210,178,112,.16); padding-bottom:4px; }
+.liuren-pillars i { font-style:normal; font-size:16px; color:#8e846c; }
+.liuren-pillars b { font-weight:400; font-size:19.5px; color:#efe2bf; letter-spacing:0; }
+.liuren-facts { display:flex; flex-direction:column; gap:4px; }
+.liuren-factline { display:flex; gap:8px; font-size:11px; line-height:1.4; }
+.liuren-k { flex:0 0 34px; color:#8e846c; }
+.liuren-v { color:#d9cfb6; }
+.liuren-wang { border-top:1px solid rgba(210,178,112,.16); padding-top:6px; }
+.liuren-wang-head { font-size:10px; letter-spacing:1px; color:#8e846c; }
+.liuren-wang-row { display:flex; gap:10px; margin-top:4px; }
+.liuren-wang-item { display:flex; align-items:baseline; gap:3px; font-size:11px; }
+.liuren-wang-item i { font-style:normal; font-size:9px; color:#8e846c; }
 /* Two-state editor for 乾/艮/巽/坤: pick up to two life stages in one panel. */
 .qimen-state-editor { position: fixed; z-index: 60; display: grid; grid-template-columns: repeat(4, 46px); gap: 2px; padding: 6px; background: rgba(18, 22, 21, .98); border: 1px solid rgba(230, 207, 149, .35); box-shadow: 0 14px 34px rgba(0, 0, 0, .65); }
 .qimen-state-editor button { height: 30px; padding: 0; border: 1px solid rgba(230, 207, 149, .16); background: none; color: #cbd3c4; font: 14px/1 "Songti SC", "Microsoft YaHei", serif; cursor: pointer; }
@@ -814,6 +906,20 @@ html[data-theme="ink"] .bazi-cell,
 html[data-theme="ink"] .hex-card { background: linear-gradient(145deg,rgba(54,86,106,.96),rgba(42,70,88,.97)); border-color: rgba(232,240,248,.30); }
 html[data-theme="ink"] .qimen-cell:hover { background: linear-gradient(145deg,rgba(70,104,126,.70),rgba(50,82,102,.94)); border-color: rgba(232,240,248,.55); }
 html[data-theme="ink"] .qimen-cell.center-cell { background: linear-gradient(145deg,rgba(60,92,112,.96),rgba(46,74,92,.97)); border-color: rgba(232,240,248,.44); }
+html[data-theme="ink"] .liuren-cell,
+html[data-theme="ink"] .liuren-pass-row,
+html[data-theme="ink"] .liuren-lesson-row { background: linear-gradient(145deg,rgba(54,86,106,.96),rgba(42,70,88,.97)); border-color: rgba(232,240,248,.30); }
+html[data-theme="ink"] .liuren-cell:hover { background: linear-gradient(145deg,rgba(70,104,126,.70),rgba(50,82,102,.94)); border-color: rgba(232,240,248,.55); }
+html[data-theme="ink"] .liuren-core { border-color: rgba(232,240,248,.22); }
+html[data-theme="ink"] .liuren-earth,
+html[data-theme="ink"] .liuren-k,
+html[data-theme="ink"] .liuren-block-head,
+html[data-theme="ink"] .liuren-wang-head,
+html[data-theme="ink"] .liuren-core span { color: #9db9cc; }
+html[data-theme="ink"] .liuren-v,
+html[data-theme="ink"] .liuren-pillars b,
+html[data-theme="ink"] .liuren-core em { color: #e6f0f8; }
+html[data-theme="ink"] .liuren-question { color: #e6f0f8; border-color: rgba(232,240,248,.26); }
 html[data-theme="ink"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(52,82,101,.62),rgba(40,66,82,.90)); border-color: rgba(232,240,248,.26); }
 /* 宫格内阴影收到 .25，避免四边压暗吃进格内；排除聚光/缩放态以免盖掉动效光晕 */
 html[data-theme="ink"] .qimen-cell:not(.quick-spotlight):not(.quick-zoom) { box-shadow: inset 0 0 23px rgba(0,0,0,.25); }
@@ -843,6 +949,20 @@ html[data-theme="cinnabar"] .bazi-cell,
 html[data-theme="cinnabar"] .hex-card { background: linear-gradient(145deg,rgba(108,51,51,.96),rgba(87,40,40,.97)); border-color: rgba(214,140,138,.30); }
 html[data-theme="cinnabar"] .qimen-cell:hover { background: linear-gradient(145deg,rgba(130,68,66,.70),rgba(94,44,44,.94)); border-color: rgba(214,140,138,.55); }
 html[data-theme="cinnabar"] .qimen-cell.center-cell { background: linear-gradient(145deg,rgba(120,58,56,.96),rgba(93,43,43,.97)); border-color: rgba(214,140,138,.44); }
+html[data-theme="cinnabar"] .liuren-cell,
+html[data-theme="cinnabar"] .liuren-pass-row,
+html[data-theme="cinnabar"] .liuren-lesson-row { background: linear-gradient(145deg,rgba(108,51,51,.96),rgba(87,40,40,.97)); border-color: rgba(214,140,138,.30); }
+html[data-theme="cinnabar"] .liuren-cell:hover { background: linear-gradient(145deg,rgba(130,68,66,.70),rgba(94,44,44,.94)); border-color: rgba(214,140,138,.55); }
+html[data-theme="cinnabar"] .liuren-core { border-color: rgba(214,140,138,.22); }
+html[data-theme="cinnabar"] .liuren-earth,
+html[data-theme="cinnabar"] .liuren-k,
+html[data-theme="cinnabar"] .liuren-block-head,
+html[data-theme="cinnabar"] .liuren-wang-head,
+html[data-theme="cinnabar"] .liuren-core span { color: #c9a5a3; }
+html[data-theme="cinnabar"] .liuren-v,
+html[data-theme="cinnabar"] .liuren-pillars b,
+html[data-theme="cinnabar"] .liuren-core em { color: #f2e4dd; }
+html[data-theme="cinnabar"] .liuren-question { color: #f2e4dd; border-color: rgba(214,140,138,.26); }
 html[data-theme="cinnabar"] .bazi-cell.branch-cell { background: linear-gradient(160deg,rgba(103,49,49,.62),rgba(79,36,36,.90)); border-color: rgba(214,140,138,.26); }
 /* 同玄青：内阴影收到 .25 */
 html[data-theme="cinnabar"] .qimen-cell:not(.quick-spotlight):not(.quick-zoom) { box-shadow: inset 0 0 23px rgba(0,0,0,.25); }
@@ -893,6 +1013,23 @@ html[data-theme="paper"] .hex-card {
 }
 html[data-theme="paper"] .qimen-cell:hover { background: linear-gradient(160deg,var(--tile-hover),var(--tile-2) 58%,var(--tile-3)); border-color: rgba(150,120,70,.5); }
 html[data-theme="paper"] .qimen-cell.center-cell { background: linear-gradient(160deg,var(--tile-2),var(--tile-3)); border-color: var(--tile-border); }
+html[data-theme="paper"] .liuren-cell,
+html[data-theme="paper"] .liuren-pass-row,
+html[data-theme="paper"] .liuren-lesson-row {
+  background: linear-gradient(160deg,var(--tile-1) 0%,var(--tile-2) 58%,var(--tile-3) 100%);
+  border: 1px solid var(--tile-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 10px var(--shadow-soft);
+}
+html[data-theme="paper"] .liuren-cell:hover { background: linear-gradient(160deg,var(--tile-hover),var(--tile-2) 58%,var(--tile-3)); border-color: rgba(150,120,70,.5); }
+html[data-theme="paper"] .liuren-core { border-color: var(--line); background: rgba(255,255,255,.3); }
+html[data-theme="paper"] .liuren-earth,
+html[data-theme="paper"] .liuren-k,
+html[data-theme="paper"] .liuren-block-head,
+html[data-theme="paper"] .liuren-wang-head { color: var(--muted); }
+html[data-theme="paper"] .liuren-v,
+html[data-theme="paper"] .liuren-pillars b { color: var(--ink); }
+html[data-theme="paper"] .liuren-question { color: var(--ink); border-color: var(--line); background: rgba(255,255,255,.35); }
+html[data-theme="paper"] .liuren-question::placeholder { color: var(--muted); }
 html[data-theme="paper"] .qimen-palace-heading,
 html[data-theme="paper"] .qimen-palace-heading b { color: var(--sub); }
 html[data-theme="paper"] .qimen-value { color: var(--ink); }
@@ -1157,6 +1294,10 @@ html[data-chrome="dark"] .bazi-date-dialog,
 html[data-chrome="dark"] .qimen-state-editor,
 html[data-chrome="dark"] .toast { background: linear-gradient(180deg, var(--stage-top), var(--stage)); color: var(--ink); }
 html[data-chrome="dark"] .case-drawer { background: var(--drawer); color: var(--ink); border-color: var(--line); }
+/* 深色外框下弹窗仍是浅纸底，按钮沿用浅色配色，避免浅字压浅底。 */
+html[data-chrome="dark"] .bazi-date-dialog .quiet-button { background: transparent; border-color: var(--line); color: var(--sub); }
+html[data-chrome="dark"] .bazi-date-dialog .primary-button { background: linear-gradient(135deg,#eedbb4,#dcc08a); border-color: transparent; color: var(--ink); }
+html[data-chrome="dark"] .bazi-date-dialog .icon-button { background: rgba(255,255,255,.55); border-color: var(--line); color: var(--sub); }
 
 /* ===== 区域配色编辑器 ===== */
 .preset-switch { display: contents; }
@@ -1327,6 +1468,53 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   .qimen-value { font-size: clamp(15px, 5.6cqw, 30px); }
   .qimen-state { font-size: clamp(9px, 2.7cqw, 14px); }
   .qimen-pattern-tools { display: none; }
+  /* 六壬：左上日期与所问、右上要点、中区自上而下 三传→四课→天地盘。 */
+  .liuren-stage { grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); grid-template-areas: "left right" "center center"; grid-template-rows: auto minmax(0,1fr); align-content: stretch; gap: 8px 12px; padding: 8px 10px 6px; height: 100%; }
+  .liuren-side-left, .liuren-side-right { padding-top: 34px; }
+  .liuren-side-left { grid-area: left; }
+  .liuren-side-right { grid-area: right; gap: 5px; }
+  .liuren-center { grid-area: center; gap: 7px; height: 100%; min-height: 0; }
+  .liuren-side-left .qimen-date { font-size: 13px; line-height: 1.35; }
+  .liuren-side-left .qimen-date:nth-child(2) { font-size: 11px; }
+  .liuren-question { font-size: 12px; line-height: 1.45; padding: 5px 8px; margin-top: 4px; min-height: 42px; height: auto; resize: none; overflow-y: auto; }
+  .liuren-pillars b { font-size: 16.5px; }
+  .liuren-factline { font-size: 10px; gap: 5px; }
+  .liuren-k { flex-basis: 30px; }
+  .liuren-wang-row { gap: 7px; }
+  .liuren-wang-item { font-size: 10px; }
+  .liuren-block-head { font-size: 9px; margin-bottom: 3px; }
+  .liuren-pass .motion-surface { padding: 0 4px 4px; }
+  .liuren-pass-branch { font-size: 21.06px; }
+  .liuren-pass-gen { font-size: 14.58px; }
+  .liuren-pass-dun, .liuren-pass-six { font-size: 12.15px; }
+  .liuren-lesson-top, .liuren-lesson-bottom { font-size: 17.82px; }
+  .liuren-lesson-gen { font-size: 16.02px; }
+  .liuren-plate { gap: 3px; }
+  .liuren-heaven { font-size: 24px; }
+  .liuren-dun { top: calc(62.5% - 15px); }
+  .liuren-gen, .liuren-dun { font-size: 12.96px; }
+  .liuren-earth { font-size: 9.68px; }
+  .liuren-core b { font-size: 16px; }
+  /* ── 梅花 ───────────────────────────── */
+  /* 手机竖屏：保持三列两行，按 3:2 定高让卡片接近方形；上方留一整格高，偏上不贴顶。 */
+  .meihua-board {
+    width: 100%; height: auto; aspect-ratio: 3 / 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 6px; padding: 0;
+    /* margin 百分比按宽度算：板高 = 宽 × 2/3，单格 ≈ 板高/2，一格即宽 × 1/3。 */
+    margin: calc(100% / 3) 0 auto;
+  }
+  .hex-card { padding: 4px 3px; }
+  .trigram-svg { width: min(60%, 130px); }
+  .trigram-caption { font-size: clamp(11px, 3.4vw, 20px); }
+  .hex-tag, .hex-role { font-size: 9px; }
+  .meihua-meta { top: calc(100% + 10px); font-size: 11px; }
+  /* 竖屏棋盘占满宽度，日期改挂盘上沿左侧，与棋盘左边缘对齐。 */
+  .meihua-dates { left: 0; right: auto; top: auto; bottom: calc(100% + 30px); }
+  .meihua-dates .qimen-date { font-size: 12px; }
+  /* 象意动效位原来挂在板外左侧，手机上没有空间，收进板内左上角并隐藏。 */
+  .meihua-effect-slot { left: 4px; top: 4px; width: 28px; height: 28px; opacity: 0; pointer-events: none; }
   /* 与工具栏「案例」同尺寸，右边缘对齐（案例右侧留 41px 固定偏移）。 */
   .bazi-entry-trigger { top: 20px; right: 41px; height: 29px; padding: 0 12px; font-size: 11px; letter-spacing: 1px; border-radius: 5px; border-width: 1px; z-index: 12; }
   .stage-surface::after { display: none; }
@@ -1342,4 +1530,62 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
   }
   .control-panel.open { transform: translateX(0); }
   .case-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 84vw; max-width: 330px; z-index: 899; }
+}
+
+/* 电脑横版：流年竖排到盘面左侧（格内文字横排），大运/流月并排在下方；盘面收窄到约 5/6。 */
+@media (min-width: 901px) {
+  .bazi-stage {
+    display: grid;
+    /* 内容块固定 823px（流年列 82 + 间距 12 + 盘面 729），左边补等量留白，让它整体居中。 */
+    padding-left: max(0px, calc((100% - 823px) / 2));
+    grid-template-columns: 82px minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "dates   dates dates"
+      "liunian board board"
+      "dayun   dayun month";
+    grid-template-rows: auto auto auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    align-content: center;
+    align-items: start;
+    justify-content: center;
+  }
+  .bazi-side { grid-area: dates; justify-self: start; }
+  .bazi-board { grid-area: board; justify-self: start; width: min(729px, 100%); max-width: 1110px; margin: 0; }
+  .bazi-luck { display: contents; }
+  .bazi-luck-row { min-width: 0; }
+  /* 流年：竖列叠放，格内 年份/岁数/干支 横排，整列拉满盘面高度。 */
+  .bazi-luck-row:nth-child(1) { grid-area: liunian; align-self: stretch; flex-direction: column; align-items: stretch; gap: 4px; }
+  .bazi-luck-row:nth-child(1) .bazi-luck-label { flex: 0 0 auto; writing-mode: horizontal-tb; padding-top: 0; letter-spacing: 3px; }
+  .bazi-luck-row:nth-child(1) .bazi-luck-track { flex: 1 1 auto; flex-direction: column; gap: 4px; min-height: 0; }
+  .bazi-luck-row:nth-child(1) .luck-chip { flex: 1 1 0; flex-direction: row; align-items: center; justify-content: center; gap: 2px; padding: 2px; }
+  /* 下方两块：大运左起本行左沿、右止竖线；流月从竖线到盘面右沿。 */
+  .bazi-luck-row:nth-child(2) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: 0; width: 378px; align-self: stretch; border-left: 0; padding-left: 0; padding-right: 6px; }
+  .bazi-luck-row:nth-child(3) { grid-area: 3 / 1 / 4 / -1; justify-self: start; margin-left: 378px; width: 445px; align-self: stretch; align-items: stretch; display: flex; position: relative; border-left: 0; padding-left: 6px; }
+  /* 竖线跨过盘面与运势条之间的行距，接成一条。 */
+  .bazi-luck-row:nth-child(3)::before { content: ''; position: absolute; left: 0; top: -6px; bottom: 0; border-left: 1px solid rgba(217, 184, 117, .22); pointer-events: none; }
+  html[data-theme="paper"] .bazi-luck-row:nth-child(3)::before { border-left-color: var(--line); }
+  /* 标签横排到格子上方，让首个格子左边与左侧流年列左边对齐。 */
+  .bazi-luck-row:nth-child(2), .bazi-luck-row:nth-child(3) { flex-direction: column; align-items: stretch; gap: 4px; }
+  .bazi-luck-row:nth-child(2) .bazi-luck-label,
+  .bazi-luck-row:nth-child(3) .bazi-luck-label { flex: 0 0 auto; writing-mode: horizontal-tb; padding-top: 0; letter-spacing: 3px; }
+  /* 宫格加高、汉字放大；起运前与其它格等宽。 */
+  /* 两段各自铺满：大运 98→竖线、流月 竖线→盘面右沿，格子在各自段内均分。 */
+  .bazi-luck-row:nth-child(2) .luck-chip,
+  .bazi-luck-row:nth-child(3) .luck-chip { flex: 1 1 0; min-width: 0; justify-content: center; padding: 3px 0 2px; }
+  .bazi-luck-row:nth-child(2) .luck-chip b,
+  .bazi-luck-row:nth-child(3) .luck-chip b { font-size: 9px; }
+  .bazi-luck-row:nth-child(2) .luck-chip > span { font-size: 8px; }
+  .bazi-luck-row:nth-child(2) .luck-chip em,
+  .bazi-luck-row:nth-child(3) .luck-month-gz { font-size: 18px; line-height: 1.1; }
+  /* 「起运前」不是干支，按格宽收小，否则横向撑出格子。 */
+  .bazi-luck-row:nth-child(2) .luck-chip.luck-chip-pre .luck-chip-empty { font-size: 9px; line-height: 1.2; letter-spacing: 0; }
+  /* 流年宫格与下方两行同字号：小字 9px、岁数 8px、干支 18px。 */
+  .bazi-luck-row:nth-child(1) .luck-chip b { font-size: 9px; }
+  .bazi-luck-row:nth-child(1) .luck-chip > span { font-size: 8px; }
+  .bazi-luck-row:nth-child(1) .luck-chip em { font-size: 18px; line-height: 1.1; }
+  /* 流月与大运同排法：干、支各占一行，字形不斜。 */
+  .bazi-luck-row:nth-child(3) .luck-month-gz { text-align: center; }
+  .bazi-luck-row:nth-child(3) .luck-month-gz i { display: block; font-style: normal; }
+  .luck-chip-pre { flex: 1 1 0; min-width: 0; padding: 3px 0 2px; }
 }
