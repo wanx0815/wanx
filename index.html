@@ -2,114 +2,144 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="dark" />
-  <title>术数可视化工作台｜确定性动效演示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#f6f1e6" />
+  <title>术数工作台｜确定性动效演示</title>
   <link rel="stylesheet" href="./demo.css" />
+  <link rel="stylesheet" href="./ink.css?v=20261122" />
   <script>
     try {
-      var initialTheme = localStorage.getItem('motion.theme.v1') || 'paper';
-      // 自定义配色与预设都落在 paper 作用域，未识别的值一律按 paper 兜底。
-      var baseTheme = initialTheme === 'ink' || initialTheme === 'cinnabar' ? initialTheme : 'paper';
-      document.documentElement.dataset.theme = baseTheme;
-      document.documentElement.style.colorScheme = baseTheme === 'paper' ? 'light' : 'dark';
-    } catch (error) {
-      document.documentElement.dataset.theme = 'paper';
-      document.documentElement.style.colorScheme = 'light';
-    }
+      localStorage.setItem('motion.theme.v1', 'paper');
+      var storedFont = localStorage.getItem('motion.font.v1');
+      if (storedFont) document.documentElement.dataset.font = storedFont;
+    } catch (error) {}
+    document.documentElement.dataset.theme = 'paper';
+    document.documentElement.style.colorScheme = 'light';
   </script>
 </head>
 <body>
+  <div class="brand-subtitle" hidden>DETERMINISTIC MOTION LAB <i></i> 正式版 v1.0.0</div>
+  <span class="version-tag" hidden>v1.0.0</span>
   <div class="app-shell" id="appShell">
-    <header class="topbar">
-      <div class="brand-lockup">
-        <div class="brand-mark"><span>玄</span></div>
-        <div>
-          <div class="brand-title">术数可视化工作台</div>
-          <div class="brand-subtitle">DETERMINISTIC MOTION LAB <i></i> 原型演示 v0.8.0 · TEMPLATE UPDATE</div>
-        </div>
-      </div>
-      <div class="topbar-center">
-        <span class="case-label">命理工作台</span>
-        <span class="divider-dot"></span>
-        <span class="save-state"><b></b> 本地演示</span>
-      </div>
-      <div class="topbar-actions">
-        <button class="quiet-button" id="clearAllBtn" title="清除全部视觉效果">恢复总览</button>
-        <button class="primary-button" id="presentationBtn"><span class="button-icon">◫</span> 展示模式</button>
-      </div>
-    </header>
-
-    <main class="workspace" id="workspace">
-      <section class="stage-column">
-        <div class="stage-toolbar">
-          <div class="template-switch" role="tablist" aria-label="动效锚点样例模板">
-            <button class="template-tab" data-template="bazi" role="tab">四柱</button>
-            <button class="template-tab active" data-template="qimen" role="tab">奇门</button>
-            <button class="template-tab" data-template="liuren" role="tab">六壬</button>
-            <button class="template-tab" data-template="meihua" role="tab">梅花</button>
-          </div>
-          <div class="stage-toolbar-right">
-            <button class="case-toggle" id="caseToggle" type="button" aria-expanded="false" aria-controls="caseDrawer">案例</button>
-            <button class="icon-button" id="panelToggle" aria-label="显示或隐藏动效控制面板" title="隐藏/显示控制面板">☷</button>
+    <div class="design-canvas" id="designCanvas">
+      <div class="bamboo-corner" aria-hidden="true"></div>
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-seal"><span>玄</span></div>
+          <div class="brand-type">
+            <div class="brand-title">术数工作台</div>
+            <div class="brand-subtitle">纸上观象 · 本地<span hidden> 正式版 v1.0.0</span></div>
           </div>
         </div>
+        <div class="topbar-actions">
+          <button class="quiet-button" id="clearAllBtn" title="清除全部视觉效果">恢复总览</button>
+          <button class="quiet-button" id="presentationBtn"><span class="button-icon">◫</span> 展示</button>
+        </div>
+      </header>
 
-        <div class="stage-viewport">
-          <div class="stage-board-slot">
-          <div class="stage-board" id="stageBoard" data-motion-stage>
-            <div class="stage-surface" data-motion-stage-surface id="stageSurface">
-              <div class="stage-backdrop-grid"></div>
+      <main class="workspace" id="workspace">
+        <nav class="nav-rail" aria-label="盘式切换">
+          <div class="template-switch" role="tablist" aria-label="术数盘式">
+            <button class="template-tab" data-template="bazi" role="tab" type="button"><em>壹</em><span class="tab-cn">造</span><span class="tab-en">四柱</span></button>
+            <button class="template-tab active" data-template="qimen" role="tab" type="button"><em>贰</em><span class="tab-cn">局</span><span class="tab-en">奇门</span></button>
+            <button class="template-tab" data-template="liuren" role="tab" type="button"><em>叁</em><span class="tab-cn">课</span><span class="tab-en">六壬</span></button>
+            <button class="template-tab" data-template="meihua" role="tab" type="button"><em>肆</em><span class="tab-cn">卦</span><span class="tab-en">梅花</span></button>
+          </div>
+        </nav>
 
-              <div class="stage-heading">
-                <div class="eyebrow">VISUAL SYSTEM / PREVIEW</div>
-                <div class="stage-title" id="stageTitle">九宫关系演示</div>
-                <div class="stage-subtitle" id="stageSubtitle">固定宫位 · 原位突出 · 关系由操作者指定</div>
+        <section class="stage-column">
+          <div class="chart-tools">
+            <div class="stage-question"><label for="inkQuestion">所问何事</label><input id="inkQuestion" placeholder="在此写下所问之事" /></div>
+            <button class="stage-trigger" id="baziEntryTrigger" type="button" hidden>排盘</button>
+            <button class="stage-trigger" id="qimenChartTrigger" type="button" hidden>起局</button>
+            <button class="stage-trigger" id="liurenChartTrigger" type="button" hidden>起课</button>
+            <button class="stage-trigger" id="meihuaChartTrigger" type="button" hidden>起卦</button>
+            <button class="stage-trigger" id="caseToggle" type="button" aria-expanded="false" aria-controls="caseDrawer" title="案例卷宗">案例</button>
+            <span class="visually-hidden" id="stageTitle"></span>
+            <span class="visually-hidden" id="stageSubtitle"></span>
+          </div>
+          <div class="stage-viewport">
+            <div class="stage-board-slot">
+              <div class="stage-board" id="stageBoard" data-motion-stage>
+                <div class="stage-surface" data-motion-stage-surface id="stageSurface">
+                  <div class="board-content" id="boardContent"></div>
+                  
+                  <svg class="motion-overlay" id="motionOverlay" viewBox="0 0 1080 1080" preserveAspectRatio="none" aria-hidden="true"></svg>
+                </div>
+                
               </div>
-              <div class="board-content" id="boardContent"></div>
-              <div class="stage-footer">
-                <span>固定模板 / DETERMINISTIC</span>
-                <span class="footer-center">图形表现不代表系统自动判断命理关系</span>
-                <span>1920 × 1080 LOGIC</span>
-              </div>
-              <button class="bazi-entry-trigger" id="baziEntryTrigger" type="button" hidden>排盘</button>
-              <button class="bazi-entry-trigger qimen-chart-trigger" id="qimenChartTrigger" type="button" hidden>起局</button>
-              <button class="bazi-entry-trigger liuren-chart-trigger" id="liurenChartTrigger" type="button" hidden>起课</button>
-              <button class="bazi-entry-trigger meihua-chart-trigger" id="meihuaChartTrigger" type="button" hidden>起卦</button>
-              <svg class="motion-overlay" id="motionOverlay" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
             </div>
           </div>
-          </div>
-        </div>
+          <svg class="ink-exact-grid" id="inkExactGrid" viewBox="-20 -20 600 600" preserveAspectRatio="none" aria-hidden="true">
+                    <g fill="none" stroke="rgba(35,36,32,.4)" stroke-width="0.95" stroke-linecap="round">
+                      <path d="M-16 0 C 100 -1, 260 1.5, 380 -0.5 S 540 0.5, 576 0" />
+                      <path d="M-16 186.66 C 100 185.66, 260 188.16, 380 186.16 S 540 187.16, 576 186.66" />
+                      <path d="M-16 373.33 C 100 374.33, 260 371.83, 380 373.83 S 540 372.83, 576 373.33" />
+                      <path d="M-16 560 C 100 559, 260 561.5, 380 559.5 S 540 560.5, 576 560" />
+                      <path d="M0 -16 C -1 100, 1.5 260, -0.5 380 S 0.5 540, 0 576" />
+                      <path d="M186.66 -16 C 185.66 100, 188.16 260, 186.16 380 S 187.16 540, 186.66 576" />
+                      <path d="M373.33 -16 C 374.33 100, 371.83 260, 373.83 380 S 372.83 540, 373.33 576" />
+                      <path d="M560 -16 C 559 100, 561.5 260, 559.5 380 S 560.5 540, 560 576" />
+                    </g>
+                    <g id="inkSelectedFrame" fill="#232420" stroke="none" style="display:none">
+                      <path d="M-11 184.9 L-3 185.75 L180 186.25 L197 186.45 L197 186.9 L180 186.9 L-3 186.95 L-11 188.1 Z" />
+                      <path d="M-11 371.9 L-3 372.75 L180 373.25 L197 373.45 L197 373.9 L180 373.9 L-3 373.95 L-11 375.1 Z" />
+                      <path d="M-0.2 176 L2.8 176 L1.75 184 L1.8 366 L1.55 384 L1.05 384 L0.7 366 L0.65 184 Z" />
+                      <path d="M185.5 176 L188.5 176 L187.5 184 L187.5 373 L187.15 391 L186.65 391 L186.35 373 L186.35 184 Z" />
+                    </g>
+                  </svg>
+        </section>
 
-        <div class="bottom-actionbar" id="bottomActionbar">
-          <div class="actionbar-left">
-            <span class="actionbar-label">主题</span>
-            <div class="theme-switch" role="group" aria-label="主题切换">
-              <button class="theme-option" data-theme="ink" type="button" aria-pressed="false"><i></i>玄青</button>
-              <button class="theme-option" data-theme="cinnabar" type="button" aria-pressed="false"><i></i>绛砂</button>
-              <button class="theme-option" data-theme="paper" type="button" aria-pressed="false"><i></i>浅色</button>
-              <button class="theme-option" data-preset="cool" type="button" aria-pressed="false"><i style="--swatch:#d8e5f0"></i>冷白</button>
-              <button class="theme-option" data-preset="warm" type="button" aria-pressed="false"><i style="--swatch:#eceae4"></i>暖米</button>
-              <span class="preset-switch" id="presetSwitch"></span>
+        <div class="ink-rule" aria-hidden="true"></div>
+
+        <aside class="margin-col" aria-label="题签与批注">
+          <div class="margin-head">
+            <div class="m-head">
+              <div class="m-date"><b id="inkSolar">2026年11月14日 01:28</b><span id="inkLunar">二〇二六年十月初六 丑时</span></div>
+              <div class="m-tag">题签 · 批注</div>
             </div>
-            <span class="font-switch" role="group" aria-label="宫位字体切换">
-              <button class="theme-option" data-font="yahei" type="button" aria-pressed="true">雅黑</button>
-              <button class="theme-option" data-font="shoujin" type="button" aria-pressed="false">瘦金</button>
-            </span>
+            <div class="m-pillars" id="inkPillars">
+              <div class="pil"><span>年柱</span><b>丙</b><i>午</i></div>
+              <div class="pil"><span>月柱</span><b>己</b><i>亥</i></div>
+              <div class="pil"><span>日柱</span><b>壬</b><i>辰</i></div>
+              <div class="pil"><span>时柱</span><b>辛</b><i>丑</i></div>
+            </div>
+            <div class="m-facts" id="inkFacts">
+              <span>旬首 <b>甲午辛</b></span><span>值符 <b>天英</b></span><span>值使 <b>景门</b></span><span>马星 <b>亥</b></span><span>空 <b>辰巳</b></span>
+            </div>
           </div>
-          <div class="actionbar-right">
-            <span class="selected-label">当前对象 <b id="selectedLabel">中宫</b></span>
-            <button class="mini-action subtle" id="undoBtn">清除当前效果</button>
+          <div class="margin-notes">
+            <div class="m-notes-head"><span>批注</span><small>点击任意位置直接写 · 回车确认一行</small></div>
+            <div class="m-notes" id="inkNotes"></div>
+            <div class="m-seal">批</div>
           </div>
-        </div>
-      </section>
+        </aside>
+      </main>
 
-      <aside class="control-panel" id="controlPanel">
+      <footer class="dock" id="bottomActionbar">
+        <div class="dock-brushes" role="group" aria-label="动效与面板">
+          <button class="brush-dot" data-effect="highlight.focus" type="button" title="聚光高亮"><i></i><span>聚光</span></button>
+          <button class="brush-dot" data-effect="element.lift" type="button" title="局部浮起"><i></i><span>浮起</span></button>
+          <button class="brush-dot" data-effect="relation.flow" type="button" title="多方汇聚"><i></i><span>汇聚</span></button>
+          <button class="brush-dot" data-effect="relation.suppress" type="button" title="作用制化"><i></i><span>制化</span></button>
+          <button class="brush-dot more" id="panelToggle" type="button" title="更多参数"><i></i><span>更多</span></button>
+        </div>
+        <label class="dock-wx" id="wxColorOption" title="五行色：字取五行色" hidden><input id="wxColorToggle" type="checkbox" /><span>五行色</span></label>
+        <div class="dock-status"><span id="selectedLabel">中宫</span><button class="mini-action subtle" id="undoBtn" type="button">清除</button></div>
+      </footer>
+    </div>
+
+    <div class="sheet-scrim" id="sheetScrim" aria-hidden="true"></div>
+    <div class="theme-switch" hidden aria-hidden="true"></div>
+    <div class="font-switch" hidden aria-hidden="true"></div>
+
+    <aside class="control-panel hidden" id="controlPanel">
+        <div class="panel-grab" aria-hidden="true"><i></i></div>
         <div class="panel-head">
           <div>
             <div class="panel-kicker">MOTION CONTROL</div>
-            <h2>动效控制</h2>
+            <h2>推演控制</h2>
           </div>
           <button class="icon-button panel-close" id="panelClose" aria-label="关闭控制面板">×</button>
         </div>
@@ -168,7 +198,7 @@
         </section>
 
         <section class="panel-section settings-section">
-          <div class="section-title"><span>04</span> 播放策略</div>
+          <div class="section-title"><span>05</span> 播放策略</div>
           <label class="field-label" for="playbackPolicy">当前动画结束后</label>
           <select id="playbackPolicy" class="dark-select">
             <option value="replace" selected>保留当前结果；下一个动画替换它</option>
@@ -188,7 +218,7 @@
         </section>
 
         <section class="panel-section composition-section">
-          <div class="section-title"><span>05</span> 组合动作预览</div>
+          <div class="section-title"><span>06</span> 组合动作预览</div>
           <div class="composition-preview">
             <div class="composition-node"><b>01</b><span>聚光高亮</span><small>0.0s</small></div>
             <div class="composition-connector"></div>
@@ -205,7 +235,7 @@
         </section>
 
         <section class="panel-section">
-          <div class="section-title"><span>06</span> 区域配色</div>
+          <div class="section-title"><span>07</span> 区域配色</div>
           <div class="palette-grid" id="paletteGrid">
             <label class="palette-field"><span>底色</span><input type="color" data-palette-key="bg" /></label>
             <label class="palette-field"><span>面板</span><input type="color" data-palette-key="panel" /></label>
@@ -243,8 +273,7 @@
         <div class="panel-footnote">原型仅验证视觉与播放接口。正式命理模板、案例保存和素材库由主应用实现。</div>
       </aside>
 
-      <aside class="case-drawer" id="caseDrawer" aria-label="案例库" aria-hidden="true"></aside>
-    </main>
+    <aside class="case-drawer" id="caseDrawer" aria-label="案例库" aria-hidden="true"></aside>
 
     <div class="bazi-date-modal" id="baziDateModal" aria-hidden="true">
       <div class="bazi-date-dialog" role="dialog" aria-modal="true" aria-labelledby="baziDateTitle">
@@ -324,8 +353,10 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="presentation-exit" id="presentationExit"><span>展示模式</span><button id="exitPresentationBtn">退出展示 Esc</button></div>
   </div>
+  </div>
   <script src="./vendor/qimen-engine.js"></script>
   <script src="./vendor/liuren-engine.js"></script>
   <script src="./demo.js"></script>
+  <script src="./ink.js?v=20261121"></script>
 </body>
 </html>

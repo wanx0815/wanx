@@ -8,7 +8,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const LOGICAL_W = 1920;
+  const LOGICAL_W = 1080;
   const LOGICAL_H = 1080;
   const stageBoard = $('#stageBoard');
   const stageSurface = $('#stageSurface');
@@ -906,7 +906,7 @@
         const horse = document.createElement('span');
         horse.className = 'qimen-horse-slot';
         horse.setAttribute('aria-hidden', 'true');
-        horse.textContent = '♞';
+        horse.innerHTML = QIMEN_HORSE_SVG;
         cell.appendChild(horse);
       }
       exitQimenPatternMode();
@@ -1007,8 +1007,8 @@
     const width = slot.clientWidth;
     const height = slot.clientHeight;
     if (!width || !height) return;
-    const boardWidth = Math.min(width, height * 16 / 9);
-    const boardHeight = boardWidth * 9 / 16;
+    const boardWidth = Math.min(width, height);
+    const boardHeight = boardWidth;
     stageBoard.style.width = `${boardWidth}px`;
     stageBoard.style.height = `${boardHeight}px`;
     overlay.setAttribute('viewBox', `0 0 ${LOGICAL_W} ${LOGICAL_H}`);
@@ -1396,9 +1396,9 @@
   const shortStar = value => value.slice(-1);
   const shortDoor = value => value.slice(0, 1);
   function shortQimenValue(key, value) {
-    if (key === 'deity') return shortDeity(value);
-    if (key === 'star') return shortStar(value);
-    if (key === 'door') return shortDoor(value);
+    // 去卦名后：八门取首字、九星取末字；八神保留全名并居中。
+    if (key === 'star') return value.slice(-1);
+    if (key === 'door') return value.slice(0, 1);
     return value;
   }
   // 奇门只给八门、九星、天干着色；八神保持金色。开关关闭时不挂 wx-* 类。
@@ -1412,19 +1412,21 @@
   const qimenWxClass = (key, value) => {
     if (!qimenWuxing || key === 'deity') return '';
     const element = qimenElement(value);
-    return element ? ` wx-${element}` : '';
+    return element ? ` wx-${element} wx-glow` : '';
   };
+  // 马星标记：带翅膀的飞马剪影（assets/qimen-pegasus.svg 作遮罩，颜色跟 currentColor）。
+  const QIMEN_HORSE_SVG = `<i class="qimen-horse-pegasus" aria-hidden="true"></i>`;
   function renderQimen() {
     // Each stem shows its own 十二长生 string: one character in every palace;
     // corner palaces pick the branch from the palace's 地盘干 yin/yang.
     // Double-clicking a state opens the 12-state panel for that stem alone.
     const field = (p, key, value, options, stateKey, name, marks = '') => {
       const state = !stateKey ? '' : `<span class="qimen-state" data-qimen-edit="${stateKey}" data-qimen-display="${stateKey}">${p[stateKey] || ''}</span>`;
-      return `<span class="qimen-glyph qimen-${key}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,value)}"${qimenWxAttr(key,value)} data-qimen-display="${key}">${shortQimenValue(key,value)}</span></span>${state}<select class="qimen-picker" data-qimen-field="${key}" data-opts="${options.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(options,value)}</select></span>`;
+      return `<span class="qimen-glyph qimen-${key}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,value)}"${qimenWxAttr(key,value)} data-qimen-display="${key}" data-char="${shortQimenValue(key,value)}">${shortQimenValue(key,value)}</span></span>${state}<select class="qimen-picker" data-qimen-field="${key}" data-opts="${options.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(options,value)}</select></span>`;
     };
     // 寄宫 sits in its own centre column so the stem lines up with 九星/天盘 (row 2)
     // or 八门/地盘 (row 3).
-    const jiField = (p, key, slot, name, marks = '') => !p[key] ? '' : `<span class="qimen-glyph qimen-ji qimen-ji-${slot}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,p[key])}"${qimenWxAttr(key,p[key])} data-qimen-display="${key}">${p[key]}</span></span><span class="qimen-state" data-qimen-edit="${key}State" data-qimen-display="${key}State">${p[key + 'State'] || ''}</span><select class="qimen-picker" data-qimen-field="${key}" data-opts="${baziStems.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(baziStems,p[key])}</select></span>`;
+    const jiField = (p, key, slot, name, marks = '') => !p[key] ? '' : `<span class="qimen-glyph qimen-ji qimen-ji-${slot}" data-qimen-edit="${key}"><span class="qimen-line">${marks}<span class="qimen-value${qimenWxClass(key,p[key])}"${qimenWxAttr(key,p[key])} data-qimen-display="${key}" data-char="${p[key]}">${p[key]}</span></span><span class="qimen-state" data-qimen-edit="${key}State" data-qimen-display="${key}State">${p[key + 'State'] || ''}</span><select class="qimen-picker" data-qimen-field="${key}" data-opts="${baziStems.join(' ')}" aria-label="${p.name}宫${name}">${lazyOptions(baziStems,p[key])}</select></span>`;
     const emblem = `<div class="qimen-emblem" aria-hidden="true"><img src="assets/library/qimen_bagua.svg" alt="" /></div>`;
     // 旬首是地盘上的那个六仪；值使是当前落宫的八门。
     const xunShouStem = (qimenMeta.xunShou || '').slice(-1);
@@ -1460,8 +1462,8 @@
         + jiField(p,'extra','heaven','天盘寄宫',stemTags(p,'extra'))
         + jiField(p,'extraEarth','earth','地盘寄宫',stemTags(p,'extraEarth'));
       // Marks exist only after the operator adds them; no empty slots on the palaces.
-      const marks = `${qimenPatterns.rings.has(p.key) ? '<span class="qimen-ring-slot" aria-hidden="true"></span>' : ''}${qimenPatterns.horse === p.key ? '<span class="qimen-horse-slot" aria-hidden="true">♞</span>' : ''}`;
-      return `<div ${nodeAttrs(id,label,'奇门宫位')} class="anchor-node qimen-cell" data-element-id="${id}" data-label="${label}">${marks}<div class="motion-surface" data-motion-surface><div class="qimen-palace-heading" data-motion-layer>${p.name}</div><div class="qimen-core">${core}</div></div></div>`;
+      const marks = `${qimenPatterns.rings.has(p.key) ? '<span class="qimen-ring-slot" aria-hidden="true"></span>' : ''}${qimenPatterns.horse === p.key ? `<span class="qimen-horse-slot" aria-hidden="true">${QIMEN_HORSE_SVG}</span>` : ''}`;
+      return `<div ${nodeAttrs(id,label,'奇门宫位')} class="anchor-node qimen-cell" data-element-id="${id}" data-label="${label}">${marks}<div class="motion-surface" data-motion-surface><div class="qimen-palace-heading" data-motion-layer>${p.name}${p.number}</div><div class="qimen-core">${core}</div></div></div>`;
     }).join('')}</div>`;
     const tools = `<div class="qimen-pattern-tools" role="group" aria-label="宫殿图案添加">
       <button type="button" data-qimen-pattern="circle" title="圆圈（1 秒内可多选）" aria-label="圆圈"><b>◯</b></button>
@@ -1807,6 +1809,15 @@
   // 十二天将五行：贵勾空常属土，蛇朱属火，合龙属木，虎阴属金，玄后属水。
   const liurenGeneralElement = { 贵人:'土', 螣蛇:'火', 朱雀:'火', 六合:'木', 勾陈:'土', 青龙:'木', 天空:'土', 白虎:'金', 太常:'土', 玄武:'水', 太阴:'金', 天后:'水' };
   const liurenJiangName = { 亥:'登明', 戌:'河魁', 酉:'从魁', 申:'传送', 未:'小吉', 午:'胜光', 巳:'太乙', 辰:'天罡', 卯:'太冲', 寅:'功曹', 丑:'大吉', 子:'神后' };
+  // 六壬十二长生：木长生亥、火长生寅、金长生巳、水土长生申，顺时针顺行，不分阴阳只分五行。
+  const LIUREN_LIFE_ORDER = ['长生','沐浴','冠带','临官','帝旺','衰','病','死','墓','绝','胎','养'];
+  const LIUREN_LIFE_SHORT = { 长生:'长', 沐浴:'沐', 绝:'绝', 胎:'胎' };
+  const LIUREN_LIFE_START = { 木:'亥', 火:'寅', 金:'巳', 水:'申', 土:'申' };
+  const LIUREN_BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  // 格局判定用的五行生克与刑。
+  const WX_GEN = { 木:'火', 火:'土', 土:'金', 金:'水', 水:'木' };
+  const WX_CTRL = { 木:'土', 土:'水', 水:'火', 火:'金', 金:'木' };
+  const WX_XING = { 子:['卯'], 卯:['子'], 寅:['巳','申'], 巳:['申','寅'], 申:['寅','巳'], 丑:['戌','未'], 戌:['丑','未'], 未:['丑','戌'], 辰:['辰'], 午:['午'], 酉:['酉'], 亥:['亥'] };
   const liurenMeta = {
     solar: '2026年10月7日 23:00',
     lunar: '二〇二六年八月廿七 子时',
@@ -1830,84 +1841,136 @@
   }
   rebuildLiurenChart();
 
+  const LIUREN_GEN_SHORT = { 贵人: "贵", 螣蛇: "蛇", 朱雀: "朱", 六合: "合", 勾陈: "勾", 青龙: "青", 天空: "空", 白虎: "虎", 太常: "常", 玄武: "玄", 太阴: "阴", 天后: "后" };
+  // 六壬格局：只列可机械判定的毕法赋条目，面板最多取三条。
+  function liurenPatterns(chart) {
+    const out = [];
+    if (!chart) return out;
+    const de = stemElement[liurenMeta.dayStem] || '';
+    const top = i => chart.lessons[i].top;
+    const brEl = b => branchElement[b] || '';
+    // 脱气：上神为日干所生；鬼：上神克日干。
+    const tuo = b => !!de && WX_GEN[de] === brEl(b);
+    const gui = b => !!de && WX_CTRL[brEl(b)] === de;
+    const xing = WX_XING[liurenMeta.dayBranch] || [];
+    if (tuo(top(0)) && tuo(top(1))) out.push({ line: '脱上逢脱防虚诈', note: '干上连续见脱气' });
+    if (tuo(top(0)) && tuo(top(2))) out.push({ line: '人宅受脱俱招盗', note: '干上、支上皆见脱气' });
+    if (xing.includes(top(2))) out.push({ line: '宾主不投刑在上', note: '日支与支上神见刑' });
+    if (gui(top(2)) && gui(top(3))) out.push({ line: '鬼临三四讼灾随', note: '第三、四课上神为日鬼' });
+    const trio = chart.passes.map(p => brEl(p.branch));
+    if (WX_GEN[trio[0]] === trio[1] && WX_GEN[trio[1]] === trio[2]) out.push({ line: '三传递生人举荐', note: '初中末递相生' });
+    if (WX_CTRL[trio[0]] === trio[1] && WX_CTRL[trio[1]] === trio[2]) out.push({ line: '三传递克众人欺', note: '初中末递相克' });
+    return out;
+  }
   function renderLiuren() {
     const chart = liurenChart;
-    const left = `<aside class="liuren-side liuren-side-left" aria-label="起课记录">
-      <div class="qimen-date">${dateHtml(liurenMeta.solar)}</div>
-      <div class="qimen-date">${dateHtml(liurenMeta.lunar)}</div>
-      <textarea class="liuren-question" rows="1" placeholder="所问之事" aria-label="所问之事">${escapeAttr(liurenMeta.question)}</textarea>
-    </aside>`;
     if (!chart) {
-      return `<div class="liuren-stage">${left}<div class="liuren-center"><div class="liuren-empty">六壬排盘组件未加载。</div></div></div>`;
+      return `<div class="liuren-design liuren-empty">六壬排盘组件未加载。</div>`;
     }
-    const cells = chart.palaces.map(p => {
-      const seat = liurenSeat[p.earth];
-      const id = `liuren.palace.${p.earth}`;
-      const label = `${p.earth}宫 · 天盘${p.heaven}${p.general ? ' ' + p.general : ''}`;
-      return `<div ${nodeAttrs(id, label)} class="anchor-node liuren-cell${p.dun ? '' : ' liuren-kong'}" data-element-id="${id}" data-label="${label}" style="grid-row:${seat[0]};grid-column:${seat[1]}">
-        <div class="motion-surface" data-motion-surface>
-          <span class="liuren-gen ${elementClass(liurenGeneralElement[p.general])}">${liurenGeneralShort[p.general] || ''}</span>
-          <span class="liuren-heaven ${wuxingClass(p.heaven)}">${p.heaven}</span>
-          <span class="liuren-foot"><i class="liuren-dun ${p.dun ? wuxingClass(p.dun) : 'liuren-is-kong'}">${p.dun || '空'}</i><b class="liuren-earth">${p.earth}</b></span>
-        </div>
-      </div>`;
-    }).join('');
-    const core = `<div class="liuren-core" style="grid-row:2 / 4;grid-column:2 / 4">
-      <em>${chart.principle}</em>
-      <div class="liuren-core-line"><b>${liurenMeta.moonGeneral}</b><span>将</span><i>加</i><b>${liurenMeta.hourBranch}</b><span>时</span></div>
-    </div>`;
-    const passLabel = ['初传', '中传', '末传'];
-    const passes = chart.passes.map((p, i) => `<div ${nodeAttrs(`liuren.pass.${i}`, passLabel[i])} class="anchor-node liuren-pass${chart.kong.includes(p.branch) ? ' liuren-kong' : ''}" data-element-id="liuren.pass.${i}" data-label="${passLabel[i]} · ${p.branch}">
-        <div class="motion-surface" data-motion-surface>
-          <span class="liuren-pass-six">${liurenSixShort[p.six] || p.six}</span>
-          <span class="liuren-pass-dun ${p.dun ? wuxingClass(p.dun) : 'liuren-is-kong'}">${p.dun || '空'}</span>
-          <span class="liuren-pass-branch ${wuxingClass(p.branch)}">${p.branch}</span>
-          <span class="liuren-pass-gen ${elementClass(liurenGeneralElement[p.general])}">${liurenGeneralShort[p.general] || ''}</span>
-        </div>
-      </div>`).join('');
-    const lessonNo = ['一', '二', '三', '四'];
-    // 四课独立成块，按 四三二一 自左向右排列。
-    const lessons = [3, 2, 1, 0].map(i => {
+    const shortGen = g => LIUREN_GEN_SHORT[g] || "";
+    const markBranch = branch => {
+      let inner = branch;
+      if (branch === chart.officials.noble) {
+        inner = `<span class="noble-anchor"><span class="crown crown-sm"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${inner}</span>`;
+      }
+      if (chart.kong.includes(branch)) {
+        inner = `<span class="kong-anchor">${inner}<i class="kong-inline kong-inline-lg"></i></span>`;
+      }
+      return inner;
+    };
+    const wxGlow = value => { const e = stemElement[value] || branchElement[value]; return e ? ` wx-${e} wx-glow` : ""; };
+    const genGlow = general => { const e = liurenGeneralElement[general]; return e ? ` wx-${e} wx-glow` : ""; };
+    // 日干十二长生，只标长生/沐浴/绝/胎四个，出现在三传与四课上神旁。
+    const lifeMark = branch => {
+      const start = LIUREN_BRANCHES.indexOf(LIUREN_LIFE_START[stemElement[liurenMeta.dayStem]] || '');
+      const i = LIUREN_BRANCHES.indexOf(branch);
+      if (start < 0 || i < 0) return '';
+      const state = LIUREN_LIFE_ORDER[(i - start + 12) % 12];
+      const short = LIUREN_LIFE_SHORT[state];
+      return short ? `<i class="ln-life" title="${state}">${short}</i>` : '';
+    };
+    const patterns = liurenPatterns(chart);
+    // 格局按「课体·格局」排；引擎对涉害课只给见机/察微/缀瑕这类格名，这里补上课体。
+    const principleText = /^(见机|察微|缀瑕)$/.test(chart.principle) ? `涉害·${chart.principle}` : chart.principle;
+    const passes = [...chart.passes].reverse().map(p => `<div class="pass-vrow"><em>${p.six}</em><strong class="${wxGlow(p.dun).trim()}" data-char="${p.dun || ""}">${p.dun || "空"}</strong><span class="z${wxGlow(p.branch)}" data-char="${p.branch}"><span class="life-host">${markBranch(p.branch)}${lifeMark(p.branch)}</span></span><span class="j${genGlow(p.general)}" data-char="${shortGen(p.general)}">${shortGen(p.general)}</span></div>`).join("");
+    const scopeLines = patterns.slice(0, 3).map(item => `<div class="scope-line"><b>${item.line}</b><span>${item.note}</span></div>`).join("")
+      || `<div class="scope-line"><span>${chart.note || '依九宗门取传'}</span></div>`;
+    const title = `<div class="title-block"><em>${principleText}</em><span>${liurenMeta.moonGeneral}将${liurenMeta.hourBranch}时</span><div class="scope-head">毕法赋</div>${scopeLines}<div class="tseal">课</div></div>`;
+    // 四课自右向左排：第一课在最右，第四课在最左。
+    const lessons = [3,2,1,0].map(i => {
       const l = chart.lessons[i];
-      const general = chart.officials.byHeaven[l.top] || '';
-      return `<div ${nodeAttrs(`liuren.lesson.${i}`, `${lessonNo[i]}课`)} class="anchor-node liuren-lesson${chart.kong.includes(l.top) ? ' liuren-kong' : ''}" data-element-id="liuren.lesson.${i}" data-label="${lessonNo[i]}课 · ${l.bottom}上${l.top}">
-        <div class="motion-surface" data-motion-surface>
-          <span class="liuren-lesson-gen ${elementClass(liurenGeneralElement[general])}">${liurenGeneralShort[general] || ''}</span>
-          <b class="liuren-lesson-top ${wuxingClass(l.top)}">${l.top}</b>
-          <span class="liuren-lesson-bottom ${wuxingClass(l.bottom)}">${l.bottom}</span>
-        </div>
-      </div>`;
-    }).join('');
-    const wang = chart.wang;
-    // 右栏直接沿用奇门的四柱三行（年月日时 / 天干 / 地支）与要点排版：字号、颜色、间距都走 .qimen-* 那一套。
-    const pillarRow = pick => (liurenMeta.pillars || []).map(([label, value]) => `<span>${pick(label, value)}</span>`).join('');
-    const fact = (key, value) => `<span class="qimen-fact"><span class="qimen-k">${key}:</span><span class="qimen-v">${value}</span></span>`;
-    const right = `<aside class="liuren-side liuren-side-right" aria-label="盘面要点">
-      <div class="liuren-side-top">
-        <div class="qimen-pillars">${pillarRow(label => label)}${pillarRow((label, value) => (value || '')[0] || '')}${pillarRow((label, value) => (value || '')[1] || '')}</div>
-        <div class="qimen-facts">
-          <div class="qimen-factline">${fact('月将', `${liurenMeta.moonGeneral} · ${liurenJiangName[liurenMeta.moonGeneral] || ''}`)}${fact('旬首', chart.xunShou)}</div>
-          <div class="qimen-factline">${fact('占时', `${chart.officials.dayNight}贵${chart.officials.noble}`)}${fact('空亡', chart.kong.join(''))}</div>
-        </div>
-      </div>
-      <div class="liuren-wang">
-        <span class="liuren-wang-head">${chart.season} · 四时旺相</span>
-        <div class="liuren-wang-row">${['旺', '相', '休', '囚', '死'].map(key => `<span class="liuren-wang-item"><i>${key}</i><b class="${wuxingClass(wang[key])}">${wang[key]}</b></span>`).join('')}</div>
-      </div>
-    </aside>`;
-    return `<div class="liuren-stage">${left}
-      <div class="liuren-center">
-        <div class="liuren-top">
-          <section class="liuren-block"><div class="liuren-block-head"><span>三传</span></div><div class="liuren-pass-row">${passes}</div></section>
-          <section class="liuren-block"><div class="liuren-block-head"><span>四课</span></div><div class="liuren-lesson-row">${lessons}</div></section>
-        </div>
-        <section class="liuren-block liuren-plate-block"><div class="liuren-plate">${cells}${core}</div></section>
-      </div>
-      ${right}</div>`;
+      const g = shortGen(chart.officials.byHeaven[l.top]);
+      return `<div class="lesson"><div class="g${genGlow(chart.officials.byHeaven[l.top])}" data-char="${g}">${g}</div><div class="h${wxGlow(l.top)}" data-char="${l.top}"><span class="life-host">${markBranch(l.top)}${lifeMark(l.top)}</span></div><div class="e${wxGlow(l.bottom)}" data-char="${l.bottom}">${l.bottom}</div></div>`;
+    }).join("");
+    const skyOrder = ["辰","巳","午","未","申","酉","卯","寅","丑","子","亥","戌"];
+    const byEarth = {}; chart.palaces.forEach(p => { byEarth[p.earth] = p; });
+    const cells = skyOrder.map((earth, i) => {
+      const p = byEarth[earth];
+      const row = i < 6 ? 1 : 2, col = (i % 6) + 1;
+      const noble = p.heaven === chart.officials.noble;
+      const kong = chart.kong.includes(p.heaven);
+      const crown = noble ? `<span class="noble-anchor"><span class="crown crown-sm"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${p.heaven}</span>` : "";
+      const hInside = kong ? `<span class="kong-anchor">${crown || p.heaven}<i class="kong-inline kong-inline-lg"></i></span>` : (crown || p.heaven);
+      return `<div class="cell" style="grid-column:${col};grid-row:${row}"><div class="g">${shortGen(p.general)}</div><div class="h">${hInside}</div><div class="e">${p.dun || "空"}</div><div class="d">${p.earth}</div></div>`;
+    }).join("");
+    const pillars = (liurenMeta.pillars || []).map(([label, value]) => `<div class="pil"><span>${label}</span><b>${(value || "")[0] || ""}</b><i>${(value || "")[1] || ""}</i></div>`).join("");
+    const right = `<div class="right">
+      <div class="rhead"><div class="rdate"><b>${liurenMeta.solar}</b><span>${liurenMeta.lunar}</span></div><div class="rtag">题签 · 批注</div></div>
+      <div class="pillars">${pillars}</div>
+      <div class="facts"><span>月将 <b>${liurenMeta.moonGeneral}·${liurenJiangName[liurenMeta.moonGeneral] || ""}</b></span><span>旬首 <b>${chart.xunShou}</b></span><span>占时 <b>${chart.officials.dayNight}贵${chart.officials.noble}</b></span><span>空亡 <b>${chart.kong.join("")}</b></span></div>
+      <div class="notes-head"><span>批注</span><small>点击任意位置直接写 · 回车确认一行</small></div>
+      <div class="note">先看三传与四课，再取用神。</div>
+      <div class="note">此处只记盘面，不下断语。</div>
+      <div class="note" style="color:#8b918b">点击这一行开始写……</div>
+      <div class="seal">批</div>
+    </div>`;
+    const svg = `<svg viewBox="0 0 560 248" fill="none"><g stroke="rgba(35,36,32,.38)" stroke-width=".9" stroke-linecap="round"><path d="M-6 0.9 C 90 0.5, 200 1.5, 290 0.7 S 480 1.3, 566 0.9"/><path d="M-6 124 C 90 125, 200 123, 290 124.5 S 480 124, 566 124.5"/><path d="M-6 248 C 90 247, 200 249, 290 247.5 S 480 248.5, 566 248"/><path d="M0 -6 C -1 80, 1 170, -0.5 250 S 0.5 290, 0 260"/><path d="M93.3 -6 C 92.3 80, 94.3 180, 92.8 280"/><path d="M186.7 -6 C 187.7 80, 185.7 180, 187.2 280"/><path d="M280 -6 C 279 80, 281 180, 279.5 280"/><path d="M373.3 -6 C 374.3 80, 372.3 180, 373.8 280"/><path d="M466.7 -6 C 465.7 80, 467.7 180, 466.2 280"/><path d="M560 -6 C 559 80, 561 180, 559.5 280"/></g></svg>`;
+    setMarginLiuren();
+    function setMarginLiuren() {
+      const solar = document.getElementById("inkSolar"); if (solar) solar.textContent = liurenMeta.solar;
+      const lunar = document.getElementById("inkLunar"); if (lunar) lunar.textContent = liurenMeta.lunar;
+      const pil = document.getElementById("inkPillars");
+      if (pil) pil.innerHTML = (liurenMeta.pillars || []).map(([label, value]) => `<div class="pil"><span>${label}</span><b>${(value || "")[0] || ""}</b><i>${(value || "")[1] || ""}</i></div>`).join("");
+      const facts = document.getElementById("inkFacts");
+      if (facts) facts.innerHTML = `<span>月将 <b>${liurenMeta.moonGeneral}·${liurenJiangName[liurenMeta.moonGeneral] || ""}</b></span><span>旬首 <b>${chart.xunShou}</b></span><span>空亡 <b>${chart.kong.join("")}</b></span>`;
+    }
+    return `<div class="liuren-chart"><div class="top-band"><div class="pass-vertical">${passes}</div>${title}</div><div class="lesson-band">${lessons}</div><div class="sky">${svg}${cells}</div></div>`;
   }
   function wireLiurenQuestion() {
     const question = $('.liuren-question', boardContent);
     if (question) question.addEventListener('input', () => { liurenMeta.question = question.value; });
+  }
+  function fitLiurenMobile() {
+    const chart = document.querySelector('.liuren-chart');
+    const viewport = document.querySelector('.stage-viewport');
+    if (!chart || !viewport) return;
+    if (window.innerWidth > 900) {
+      chart.style.transform = '';
+      viewport.style.height = '';
+      return;
+    }
+    const width = viewport.clientWidth;
+    if (!width) return;
+    const scale = Math.min(width / 560, 1);
+    chart.style.transformOrigin = 'top left';
+    chart.style.transform = `scale(${scale})`;
+    viewport.style.height = `${Math.round(560 * scale)}px`;
+  }
+  window.addEventListener('resize', fitLiurenMobile);
+  if (typeof MutationObserver !== 'undefined') {
+    const liurenFitObserver = new MutationObserver(() => {
+      if (document.querySelector('.liuren-chart')) fitLiurenMobile();
+    });
+    liurenFitObserver.observe(boardContent, { childList: true, subtree: true });
+  }
+  // 五行色开关：开启时字取五行色；桌面与手机默认都开，可手动关。
+  const wxColorOption = document.getElementById('wxColorOption');
+  const wxColorToggle = document.getElementById('wxColorToggle');
+  const applyWxColor = on => document.documentElement.classList.toggle('wx-color-on', !!on);
+  if (wxColorToggle) {
+    wxColorToggle.checked = true;
+    applyWxColor(wxColorToggle.checked);
+    wxColorToggle.addEventListener('change', () => applyWxColor(wxColorToggle.checked));
   }
   function renderTemplate(template) {
     const previousTemplate = currentTemplate;
@@ -1933,6 +1996,7 @@
     $('#liurenChartTrigger').hidden = template !== 'liuren';
     $('#meihuaChartTrigger').hidden = template !== 'meihua';
     $('#qimenWuxingOption').hidden = template !== 'qimen';
+    if (wxColorOption) wxColorOption.hidden = !(template === 'qimen' || template === 'liuren');
     $$('.template-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.template === template));
     selectedId = template === 'qimen' ? 'qimen.palace.center' : template === 'liuren' ? 'liuren.palace.子' : elementList[0][0];
     // 连接下拉在这里一次建好，wireTemplateEditors 不再重复重建。
@@ -1947,7 +2011,7 @@
     clearAllEffectsQuiet();
     // 案例库按模板分开：只有真正切换模板才重置抽屉；同模板重绘（切换大运/流年、重排盘）保留当前反馈页。
     if (caseDrawer?.classList.contains('open') && template !== previousTemplate) { caseDraft = null; caseFeedbackId = null; caseFilter = '全部'; renderCaseDrawer(); }
-    requestAnimationFrame(() => requestAnimationFrame(fitStageBoard));
+    requestAnimationFrame(() => requestAnimationFrame(() => { fitStageBoard(); fitLiurenMobile(); }));
   }
   function refreshTargetOptions(fallback) {
     const list = allTemplates[currentTemplate];
@@ -2562,7 +2626,7 @@
   $('#resumeCompositionBtn').addEventListener('click', resumeComposition);
   $('#stopCompositionBtn').addEventListener('click', () => { stopComposition(); notify('组合播放已打断，并恢复本次组合效果。'); });
   // 窄屏下控制面板是右侧抽屉：初始收起，.hidden 与 .open 必须同步，否则点 × 关不掉。
-  const narrowPanel = matchMedia('(max-width: 900px)');
+  const narrowPanel = matchMedia('(max-width: 1180px)');
   const setPanelOpen = open => {
     panel.classList.toggle('hidden', !open);
     panel.classList.toggle('open', open);
@@ -2632,10 +2696,10 @@
   // 用纯静态服务器或 file:// 打开时接口不可用，退回浏览器 localStorage。
   const CASE_KEY = 'motion.cases.v1';
   const CASE_API = '/api/cases';
-  const CASE_TEMPLATES = { bazi: '四柱', qimen: '奇门', meihua: '梅花' };
+  const CASE_TEMPLATES = { bazi: '四柱', qimen: '奇门', liuren: '六壬', meihua: '梅花' };
   const caseDrawer = $('#caseDrawer');
   const caseToggle = $('#caseToggle');
-  let caseData = { bazi: [], qimen: [], meihua: [], cats: { bazi: [], qimen: [], meihua: [] } };
+  let caseData = { bazi: [], qimen: [], liuren: [], meihua: [], cats: { bazi: [], qimen: [], liuren: [], meihua: [] } };
   let caseApiOk = false;
   let caseFilter = '全部';
   let caseQuery = '';
@@ -2673,9 +2737,9 @@
   // 当前盘面快照，用于「存为当前盘面」。
   const pad2 = n => String(n).padStart(2, '0');
   function localToday() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
-  // qimenMeta.solar 形如「2026年10月7日 23:00」，取回日期与时刻。
-  function qimenSnapshotTime() {
-    const match = /^(\d+)年(\d+)月(\d+)日\s+(\d+):(\d+)/.exec(qimenMeta.solar || '');
+  // 盘面顶部日期形如「2026年10月7日 23:00」，取回日期与时刻。
+  function snapshotTimeFrom(text) {
+    const match = /^(\d+)年(\d+)月(\d+)日\s+(\d+):(\d+)/.exec(text || '');
     if (!match) return { solar: localToday(), time: '12:00' };
     return { solar: `${match[1]}-${pad2(match[2])}-${pad2(match[3])}`, time: `${pad2(match[4])}:${match[5]}` };
   }
@@ -2689,8 +2753,13 @@
     };
     if (currentTemplate === 'qimen') return {
       stems: qimenMeta.pillars.map(([, value]) => value[0]), branches: qimenMeta.pillars.map(([, value]) => value[1]),
-      gender: '男', ...qimenSnapshotTime(), method: $('#qimenMethodInput')?.value || 'chaibu',
+      gender: '男', ...snapshotTimeFrom(qimenMeta.solar), method: $('#qimenMethodInput')?.value || 'chaibu',
       question: qimenMeta.question || '',
+    };
+    if (currentTemplate === 'liuren') return {
+      stems: (liurenMeta.pillars || []).map(([, value]) => (value || '')[0]),
+      branches: (liurenMeta.pillars || []).map(([, value]) => (value || '')[1]),
+      gender: '男', ...snapshotTimeFrom(liurenMeta.solar), question: liurenMeta.question || '',
     };
     return { trigrams: meihuaSlots.map(slot => slot.value), gender: '男', solar: localToday() };
   }
@@ -2912,8 +2981,16 @@
         // 所问之事随案例走：先取案例里存的题目；老案例没有这个字段，用例名当题目。
         qimenMeta.question = item.question || item.name || '';
         await calculateQimenFromDate();
+      } else if (currentTemplate === 'liuren') {
+        // 六壬只存起课时刻与题目，载入时按同一时刻重新起课。
+        $('#liurenDateInput').value = item.solar || '';
+        $('#liurenTimeInput').value = item.time || '12:00';
+        liurenMeta.question = item.question || item.name || '';
+        const questionBox = document.getElementById('inkQuestion');
+        if (questionBox) questionBox.value = liurenMeta.question;
+        await calculateLiurenFromDate({ silent: true });
+        renderTemplate('liuren');
       } else {
-        // 案例只存六卦，起卦方式与动爻没有记录，载入后按展示态呈现。
         meihuaChart = null;
         meihuaMeta = null;
         (item.trigrams || []).forEach((value, i) => { if (meihuaSlots[i]) meihuaSlots[i].value = value; });
@@ -2996,11 +3073,11 @@
     paper: {
       chrome: 'light',
       vars: {
-        bg: '#f4f0e7', panel: '#fcf9f3', panel2: '#f7f2e8', stage: '#faf7f0', stageTop: '#fdfbf6',
-        tile1: '#ffffff', tile2: '#ffffff', tile3: '#ffffff', hover: '#fdfaf3',
-        tileBorder: 'rgba(151,124,80,.32)', line: 'rgba(130,105,65,.16)', lineStrong: 'rgba(130,105,65,.30)',
-        ink: '#262119', sub: '#5f5039', muted: '#786b54', accent: '#82632c',
-        topbar: 'rgba(252,250,245,.97)', drawer: '#fcf9f3', shadow: 'rgba(115,90,55,.10)',
+        bg: '#f6f2ea', panel: '#f8f3e9', panel2: '#f3ecdf', stage: '#f7f1e5', stageTop: '#fbf6ec',
+        tile1: '#fffdf8', tile2: '#fbf6ec', tile3: '#f6efe2', hover: '#fffefb',
+        tileBorder: 'rgba(120,95,58,.24)', line: 'rgba(96,76,46,.15)', lineStrong: 'rgba(96,76,46,.32)',
+        ink: '#231f19', sub: '#5d5140', muted: '#87795f', accent: '#9a3d2e',
+        topbar: 'rgba(248,244,236,.88)', drawer: '#f8f3e9', shadow: 'rgba(92,70,38,.12)',
       },
     },
     cool: {
@@ -3077,7 +3154,7 @@
 
   function applyTheme(theme) {
     const preset = resolvePalette(theme);
-    const base = theme === 'ink' || theme === 'cinnabar' ? theme : 'paper';
+    const base = theme === 'night' || theme === 'jade' ? theme : 'paper';
     activeTheme = theme;
     clearPaletteVars();
     document.documentElement.dataset.theme = base;
@@ -3184,9 +3261,9 @@
   const storedTheme = (() => {
     try { return localStorage.getItem('motion.theme.v1'); } catch (error) { return null; }
   })() || document.documentElement.dataset.theme || 'paper';
-  const knownTheme = storedTheme === 'ink' || storedTheme === 'cinnabar' || storedTheme === 'paper'
+  const knownTheme = storedTheme === 'ink' || storedTheme === 'night' || storedTheme === 'jade' || storedTheme === 'paper'
     || (storedTheme.startsWith('preset:') && findPalette(storedTheme.slice(7)));
-  applyTheme(knownTheme ? storedTheme : 'paper');
+  applyTheme(!knownTheme ? 'paper' : storedTheme === 'ink' ? 'night' : storedTheme);
 
   // 宫位主字字体：雅黑 / 瘦金，切换只改根节点 data-font，由 CSS 覆盖 .qimen-value。
   function applyFont(font) {

@@ -667,7 +667,7 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 .qimen-hai-slot { width: 7px; height: 6px; fill: #d08a3c; }
 .qimen-xun-slot { width: 6px; height: 6px; border-radius: 50%; background: #3fae6a; box-shadow: 0 0 4px rgba(63, 174, 106, .45); }
 .qimen-shi-slot { width: 6px; height: 6px; background: #4a86c8; box-shadow: 0 0 4px rgba(74, 134, 200, .4); }
-.qimen-he-slot, .qimen-chong-slot { font: 9px/1 "Songti SC", "Microsoft YaHei", serif; font-style: normal; letter-spacing: 0; }
+.qimen-he-slot, .qimen-chong-slot { font: 9.9px/1 "Songti SC", "Microsoft YaHei", serif; font-style: normal; letter-spacing: 0; }
 .qimen-he-slot { color: #6fbd96; }
 .qimen-chong-slot { color: #e05a4e; }
 /* 内外盘分界线：阳遁圈住 1/8/3/4 宫，阴遁圈住 9/2/7/6 宫，中五宫算内盘。颜色同选中框外框。 */
