@@ -1872,6 +1872,8 @@
       let inner = branch;
       if (branch === chart.officials.noble) {
         inner = `<span class="noble-anchor"><span class="crown crown-sm"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${inner}</span>`;
+      } else if (branch === chart.officials.nobleAlt) {
+        inner = `<span class="noble-anchor"><span class="crown crown-sm crown-alt"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${inner}</span>`;
       }
       if (chart.kong.includes(branch)) {
         inner = `<span class="kong-anchor">${inner}<i class="kong-inline kong-inline-lg"></i></span>`;
@@ -1908,8 +1910,10 @@
       const p = byEarth[earth];
       const row = i < 6 ? 1 : 2, col = (i % 6) + 1;
       const noble = p.heaven === chart.officials.noble;
+      const nobleAlt = p.heaven === chart.officials.nobleAlt;
       const kong = chart.kong.includes(p.heaven);
-      const crown = noble ? `<span class="noble-anchor"><span class="crown crown-sm"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${p.heaven}</span>` : "";
+      const crown = noble ? `<span class="noble-anchor"><span class="crown crown-sm"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${p.heaven}</span>`
+        : (nobleAlt ? `<span class="noble-anchor"><span class="crown crown-sm crown-alt"><img class="crown-img" src="assets/guiren-crown.png" width="14" height="10" alt=""></span>${p.heaven}</span>` : "");
       const hInside = kong ? `<span class="kong-anchor">${crown || p.heaven}<i class="kong-inline kong-inline-lg"></i></span>` : (crown || p.heaven);
       return `<div class="cell" style="grid-column:${col};grid-row:${row}"><div class="g">${shortGen(p.general)}</div><div class="h">${hInside}</div><div class="e">${p.dun || "空"}</div><div class="d">${p.earth}</div></div>`;
     }).join("");
