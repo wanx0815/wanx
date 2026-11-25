@@ -1012,6 +1012,9 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   /* 六壬、梅花盘面自带高度，不必定高 */
   .stage-column:has(.stage-surface.template-liuren) .stage-viewport,
   .stage-column:has(.stage-surface.template-meihua) .stage-viewport { height: auto; overflow: hidden; }
+  /* 梅花：定高方框在手机端塌成 38px，三列两行的卡片被裁掉大半；按两行给足高度，格子压矮、整块上移 */
+  .stage-column:has(.stage-surface.template-meihua) .stage-viewport { height: 300px; }
+  .app-shell:has(.stage-surface.template-meihua) .meihua-board { margin: 0 0 auto !important; grid-template-rows: repeat(2, 150px) !important; align-content: start !important; }
   /* 奇门盘的 16px 下移是给桌面画的，手机上会把九宫压到批注上，取消 */
   .stage-column:has(.stage-surface.template-qimen) .stage-viewport { transform: none; }
   /* 九宫离「所问何事」那一行留出纸面空隙，不然宫线上沿贴住问事框 */
