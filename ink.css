@@ -916,7 +916,7 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
 /* --ll-k：三传四课整体缩放（字号与间距同一比例），电脑端 1.1，手机端在下面的媒体块里改成 1.2 */
 .liuren-chart { position: relative; width: 560px; height: 560px; margin: 0 auto; --ll-k: 1.1; font-family: "Noto Serif SC","华文宋体",serif; color: #232420; }
 .liuren-chart .top-band { position: absolute; left: 0; top: 0; width: 560px; height: 168px; border-bottom: 1px solid rgba(35,36,32,.17); }
-.liuren-chart .pass-vertical { position: absolute; left: 60px; top: 0; width: 300px; height: 168px; padding: 12px 12px 0 45px; border-right: 1px solid rgba(35,36,32,.17); }
+.liuren-chart .pass-vertical { position: absolute; left: 60px; top: 0; width: 300px; height: 168px; padding: 4px 12px 0 45px; border-right: 1px solid rgba(35,36,32,.17); }
 .liuren-chart .pass-vrow { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); gap: 1px; align-items: center; height: 52px; font-family: "Noto Serif SC","华文宋体",serif; font-size: calc(14.5px * var(--ll-k)); }
 .liuren-chart .pass-vrow em { font-style: normal; color: #5c615b; font-size: calc(14.5px * var(--ll-k)); }
 .liuren-chart .pass-vrow strong { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-weight: 400; font-size: calc(16.2px * var(--ll-k)); }
@@ -1071,7 +1071,10 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   /* 长生/沐浴/绝/胎小字在手机上被整块缩放压到 5.6px（9px × 0.627），等于看不见；按缩放比补回约 9px。
      选择器多一层 .life-host，压过下方 ink.css 里 font: 9px 的简写 */
   .liuren-chart .life-host .ln-life { font-size: 14.4px; }
-  .nav-rail .template-tab { width: auto; height: 44px; padding: 0; align-items: center; justify-content: center; }
+  /* 手机上盘式栏横过来占满一行：桌面 46px 的竖栏宽把四个字挤成 14px 宽，点不中 */
+  .nav-rail { width: auto; }
+  .nav-rail .template-switch { width: 100%; gap: 0; }
+  .nav-rail .template-tab { width: auto; height: 44px; padding: 0; flex: 1 1 0; align-items: center; justify-content: center; }
   .nav-rail .tab-cn { writing-mode: horizontal-tb; font-size: 12px; letter-spacing: 2px; }
   .nav-rail .template-tab.active::before { left: 24%; right: 24%; top: auto; bottom: -1px; width: auto; height: 2px; }
   .stage-question input { font-size: 13px !important; height: 28px !important; }

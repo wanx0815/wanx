@@ -589,13 +589,16 @@ html[data-font="shoujin"] .qimen-value { font-family: "ShouJin","Aa宋徽宗瘦�
 /* Frameless placement slot for 象意动效, smaller than the trigram, level with the top row. */
 .meihua-effect-slot { position: absolute; left: -56px; top: 4px; width: 50px; height: 50px; border: 0; border-radius: 0; background: none; }
 .meihua-effect-slot:focus-visible { outline: 1px dashed rgba(217, 184, 117, .35); outline-offset: 2px; }
-/* 卦名与卦象作为一组在格心垂直居中；下排反转顺序，两排仍相对中缝排布。 */
-.hex-card .motion-surface { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-.hex-card.row-bottom .motion-surface { flex-direction: column-reverse; }
+/* 三行网格：首尾行等高，中间行自动高＝卦象高，卦象因此恒在格心；
+   卦名放进首/尾行贴边，其高度不参与居中计算。 */
+.hex-card .motion-surface { position: relative; width: 100%; height: 100%; display: grid; grid-template-rows: 1fr auto 1fr; justify-items: center; align-items: center; gap: 0; }
 /* SVG trigram bars are geometrically centred; no font metrics involved. */
-.trigram-glyph { position: static; width: 100%; display: flex; align-items: center; justify-content: center; flex: none; min-height: 0; font-size: 0; }
+.trigram-glyph { grid-row: 2; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; font-size: 0; }
 .trigram-svg { width: min(58%, 150px); height: auto; display: block; fill: currentColor; color: #e1c990; }
 .trigram-caption { text-align: center; pointer-events: none; font-size: clamp(16px, calc(6px + 1.03vw), 26px); line-height: 1; }
+/* 上排卦名在符上方、下排在下，两排相对中缝镜像，间距 12px。 */
+.hex-card.row-top .trigram-caption { grid-row: 1; align-self: end; margin-bottom: 12px; }
+.hex-card.row-bottom .trigram-caption { grid-row: 3; align-self: start; margin-top: 12px; }
 .trigram-caption.wx-木 { color: #63c08a; }
 .trigram-caption.wx-火 { color: #dc6a58; }
 .trigram-caption.wx-土 { color: #b5793f; }
