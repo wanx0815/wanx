@@ -312,6 +312,16 @@ html[data-theme="paper"] .qimen-he-slot { color: #7d4f1c !important; }
 .qimen-glyph { gap: 2px !important; }
 .qimen-emblem { display: none !important; }
 .qimen-question { display: none !important; }
+/* 中宫整盘格局：非十干克应，竖排居中，凶朱吉金 */
+.qimen-chart-patterns {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; width: 100%; text-align: center;
+}
+.qimen-pattern-name { font-family: var(--display); font-size: 15px; line-height: 1.2; letter-spacing: 2px; }
+.qimen-pattern-name.is-ji { color: #c9a227; }
+.qimen-pattern-name.is-xiong { color: #b34a38; }
+html[data-theme="paper"] .qimen-pattern-name.is-ji { color: #8a6417; }
+html[data-theme="paper"] .qimen-pattern-name.is-xiong { color: var(--red); }
 .qimen-date, .qimen-pillars, .qimen-facts { color: var(--ink-2) !important; }
 .qimen-question { color: var(--ink) !important; }
 .qimen-pattern-tools { right: 0; bottom: 0; }
@@ -1017,6 +1027,9 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   .app-shell:has(.stage-surface.template-meihua) .meihua-board { margin: 0 0 auto !important; grid-template-rows: repeat(2, 150px) !important; align-content: start !important; }
   /* 奇门盘的 16px 下移是给桌面画的，手机上会把九宫压到批注上，取消 */
   .stage-column:has(.stage-surface.template-qimen) .stage-viewport { transform: none; }
+  /* 中宫只有 117px 见方，格局名收小、行距压紧 */
+  .qimen-chart-patterns { gap: 4px; }
+  .qimen-pattern-name { font-size: 11px; letter-spacing: 1px; }
   /* 九宫离「所问何事」那一行留出纸面空隙，不然宫线上沿贴住问事框 */
   .stage-column:has(.stage-surface.template-qimen) .chart-tools { margin-bottom: 18px; }
   /* 井线原先按整列量，手机端盘面在列里下移了工具栏那一行，横线会切在宫中间；

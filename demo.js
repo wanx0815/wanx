@@ -1188,6 +1188,19 @@
     '癸壬': ['复见腾蛇', '嫁娶重婚，后嫁无子，不保年华。', '凶'],
     '癸癸': ['天网四张', '行人失伴，病讼皆伤。', '凶'],
   };
+  // 八门静应（门加天盘干）断语，取通行本；门加干无独立格名，断语即其名。
+  const qimenDoorStem = {
+    开门: { 戊:'财名俱得', 乙:'小财可求', 丙:'贵人印绶', 丁:'远信必至', 己:'事绪不定', 庚:'道路词讼，谋为两歧', 辛:'阴人道路', 壬:'远行有失，注意破财', 癸:'阴人失财，小凶' },
+    休门: { 戊:'财物和合', 乙:'求谋重不得，求轻可得', 丙:'文书和合喜庆', 丁:'百讼休歇', 己:'暗昧不宁，后吉', 庚:'文书词讼，先结后解', 辛:'疾病迟愈，失物不得', 壬:'阴人词讼牵连', 癸:'阴人词讼牵连' },
+    生门: { 戊:'嫁娶、求财、谒贵皆吉', 乙:'阴人生产，迟吉', 丙:'贵人印绶、婚姻、书信喜事', 丁:'词讼、婚姻、财利大吉', 己:'得贵人维持，吉', 庚:'财产争讼破产，不利', 辛:'产妇疾病，后吉', 壬:'遗失财后得，贼盗易获', 癸:'婚姻不成，余事皆吉' },
+    伤门: { 戊:'失脱难获', 乙:'求谋不得，反防盗失财', 丙:'道路损失', 丁:'音信不实', 己:'财散人病', 庚:'讼狱被刑杖，凶', 辛:'夫妻怀私恣怨', 壬:'因盗牵连', 癸:'讼狱被冤，有理难伸' },
+    杜门: { 戊:'谋事不成，秘处求财得', 乙:'宜暗求男人财物，后主不明致讼', 丙:'文契遗失', 丁:'男人讼狱', 己:'私谋害人，招非', 庚:'因女人讼狱被刑', 辛:'打伤人，词讼，男人小口凶', 壬:'奸盗事，凶', 癸:'百事皆阻，病者不食' },
+    景门: { 戊:'因财产词讼，远行吉', 乙:'讼事不成', 丙:'文书急迫，火速不利', 丁:'因文书印状招非', 己:'官司牵连', 庚:'讼人自讼', 辛:'阴人词讼', 壬:'因贼牵连', 癸:'因奴婢受刑' },
+    死门: { 戊:'作伪财，主假账虚财', 乙:'求事不成', 丙:'信息忧疑', 丁:'老阳人疾病', 己:'病讼牵连不已，凶', 庚:'女人生产，母子俱凶', 辛:'盗贼失脱难获', 壬:'讼人自讼自招', 癸:'嫁娶事凶' },
+    惊门: { 戊:'损财，信阻', 乙:'谋财不得', 丙:'文书印信惊恐', 丁:'词讼牵连', 己:'恶犬伤人成讼', 庚:'道路损折、贼盗，凶', 辛:'女人成讼，凶', 壬:'官司囚禁，病者大凶', 癸:'被盗，失物难获' },
+  };
+  const qimenDoorLevel = { 开门:'吉', 休门:'吉', 生门:'吉', 景门:'平', 伤门:'凶', 杜门:'凶', 死门:'凶', 惊门:'凶' };
+  const qimenGodNature = { 值符:['贵人','吉'], 腾蛇:['虚惊','凶'], 太阴:['暗助','吉'], 六合:['和合','吉'], 白虎:['争斗','凶'], 玄武:['盗欺','凶'], 九地:['守藏','平'], 九天:['扬动','吉'] };
   const qimenJiXing = { 戊:'zhen', 己:'kun', 庚:'gen', 辛:'li', 壬:'xun', 癸:'xun' };
   // 旬首关系：六仪各为旬首（甲子戊、甲戌己、甲申庚、甲午辛、甲辰壬、甲寅癸），
   // 用旬支对宫位地支判六害、六冲、六合；三奇不是旬首，不参与。
@@ -1211,51 +1224,145 @@
   };
   const QIMEN_HAI_MARK = '<svg class="qimen-hai-slot" viewBox="0 0 10 9" aria-hidden="true"><path d="M5 0 10 9H0z"/></svg>';
   const QIMEN_JIXING_MARK = '<svg class="qimen-jixing-slot" viewBox="0 0 10 14" aria-hidden="true"><path d="M6.2 0 0 8.2h3.6L2.6 14 9.6 5.4H6z"/></svg>';
-  const qimenRuMu = { 乙:'qian', 丙:'qian', 丁:'gen' };
   const starHome = { 天蓬:'kan', 天芮:'kun', 天冲:'zhen', 天辅:'xun', 天禽:'center', 天心:'qian', 天柱:'dui', 天任:'gen', 天英:'li' };
   const doorHome = { 休门:'kan', 生门:'gen', 伤门:'zhen', 杜门:'xun', 景门:'li', 死门:'kun', 惊门:'dui', 开门:'qian' };
   const palaceOpposite = { kan:'li', li:'kan', zhen:'dui', dui:'zhen', xun:'qian', qian:'xun', gen:'kun', kun:'gen', center:'center' };
-  const starStateNote = { 旺:'星气得势', 相:'与宫同气', 休:'星气已退', 囚:'受宫制约', 废:'星气尽' };
-  const doorStateNote = { 和:'门宫同气', 相:'门生宫，吉', 义:'宫生门，吉', 制:'宫克门，门力受制', 迫:'门克宫，为门迫，凶' };
+  // ── 整盘格局（非十干克应，中宫显示）─────────────
+  // 判据取通行本：时格看日时干支，伏反吟看九星/八门是否归本宫或落对宫，
+  // 三奇格看天盘三奇落宫与地盘干；十干克应另见宫位面板，不在此列。
+  const qimenDeShi = { 乙: ['己', '辛'], 丙: ['戊', '庚'], 丁: ['壬', '癸'] };
+  const qimenShengDian = { 乙: 'zhen', 丙: 'li', 丁: 'dui' };
+  const qimenLuWei = { 丙: 'xun', 丁: 'li' };
+  const qimenTianXian = { 子: ['甲', '己'], 戌: ['甲', '己'], 申: ['乙', '庚'], 午: ['丙', '辛'], 辰: ['丁', '壬'], 寅: ['戊', '癸'] };
+  const qimenShiMu = new Set(['戊戌', '壬辰', '丙戌', '癸未', '丁丑']);
+  function qimenChartPatterns() {
+    const found = new Map();
+    const add = (name, level, note) => { if (!found.has(name)) found.set(name, { name, level, note }); };
+    const pillars = qimenMeta.pillars || [];
+    const dayGz = pillars[2]?.[1] || '';
+    const hourGz = pillars[3]?.[1] || '';
+    const dayStem = dayGz[0] || '';
+    const hourStem = hourGz[0] || '';
+    const hourBranch = hourGz[1] || '';
+    // 五不遇时：时干为日干的同性七杀（天干序差 6）。
+    if (dayStem && hourStem && (baziStems.indexOf(hourStem) - baziStems.indexOf(dayStem) + 10) % 10 === 6) {
+      add('五不遇时', '凶', '时干克日干，阳克阳、阴克阴，百事不宜，宜静守。');
+    }
+    // 天显时格（天辅之时）：六甲值时，日干与旬首六仪相合；伏吟而不为凶。
+    if (hourStem === '甲' && (qimenTianXian[hourBranch] || []).includes(dayStem)) {
+      add('天显时格', '吉', '六甲值时且日干相合，宜见贵求名、远行谋为。');
+    }
+    // 时干入墓：时干支为戊戌、壬辰、丙戌、癸未、丁丑。
+    if (qimenShiMu.has(hourGz)) add('时干入墓', '凶', '时干自入墓库，谋为阻滞，宜待时。');
+    // 玉女守门：值使门所落之宫，地盘为丁奇。
+    const shi = qimenPalaces.find(p => p.door && p.door === qimenMeta.zhiShi);
+    if (shi && shi.earth === '丁') add('玉女守门', '吉', '丁奇临值使门，利婚恋、宴会、和合之事。');
+    // 伏反吟：九星、八门各自归本宫为伏，落对宫为反。
+    const fuFan = key => {
+      const home = key === 'door' ? doorHome : starHome;
+      const list = qimenPalaces
+        .filter(p => p.key !== 'center' && p[key])
+        .map(p => (home[p[key]] === p.key ? '伏' : palaceOpposite[home[p[key]]] === p.key ? '反' : '常'));
+      return { fu: list.length > 0 && list.every(v => v === '伏'), fan: list.length > 0 && list.every(v => v === '反') };
+    };
+    const star = fuFan('star');
+    const door = fuFan('door');
+    if (star.fu && door.fu) add('星门俱伏', '凶', '九星八门俱在本宫，真伏吟，宜守不宜动。');
+    else if (star.fu && door.fan) add('星伏门反', '凶', '星伏门反，天时未至而门先动，主反复。');
+    else if (star.fan && door.fu) add('门伏星反', '凶', '门伏星反，门未动而星已冲，主内变。');
+    else if (star.fan && door.fan) add('星门俱反', '凶', '九星八门俱落对宫，伏反吟中最凶，主大反复。');
+    else if (star.fu) add('星伏吟', '凶', '九星归本宫，天时不动，事主迟滞。');
+    else if (door.fu) add('门伏吟', '凶', '八门归本宫，人和不动，宜守成。');
+    else if (star.fan) add('星反吟', '凶', '九星落对宫，天时反复，先动者不利。');
+    else if (door.fan) add('门反吟', '凶', '八门落对宫，人事反复，利客不利主。');
+    // 三奇：得使（乙加己/辛、丙加戊/庚、丁加壬/癸）、升殿（乙震/丙离/丁兑）、
+    // 奇游禄位（丙巽/丁离；乙临震与升殿同一理，不重标）。
+    qimenPalaces.forEach(p => {
+      if (p.key === 'center' || !p.heaven) return;
+      if ((qimenDeShi[p.heaven] || []).includes(p.earth)) add('三奇得使', '吉', '天盘三奇临六甲旬首，得使可用，事有助力。');
+      if (qimenShengDian[p.heaven] === p.key) add('三奇升殿', '吉', '三奇临本旺之宫，百事可为。');
+      if (qimenLuWei[p.heaven] === p.key) add('奇游禄位', '吉', '奇临禄地，利求财、上官、谋为。');
+    });
+    // 悖格：天盘丙加地盘值符或年/月/日/时干；天盘值符加地盘丙。
+    const xunStem = (qimenMeta.xunShou || '').slice(-1);
+    const ganSet = new Set([xunStem, pillars[0]?.[1]?.[0], pillars[1]?.[1]?.[0], dayStem, hourStem].filter(Boolean));
+    qimenPalaces.forEach(p => {
+      if (p.key === 'center') return;
+      if ((p.heaven === '丙' && ganSet.has(p.earth)) || (p.heaven === xunStem && p.earth === '丙')) {
+        add('悖格', '凶', '丙加值符或年命干，纲纪紊乱，不宜举事。');
+      }
+    });
+    return [...found.values()];
+  }
+
   const qimenLevelClass = { 吉:'ji', 凶:'xiong', 平:'ping', 门定:'men' };
   let qimenPatternPanel = null;
   function closeQimenPatternPanel() {
     qimenPatternPanel?.remove();
     qimenPatternPanel = null;
   }
-  function qimenRow(kind, main, note) {
-    return `<div class="qpp-row"><span class="qpp-k">${kind}</span><span class="qpp-v">${escapeAttr(main)}</span>${note ? `<span class="qpp-t">${escapeAttr(note)}</span>` : ''}</div>`;
+  // 行式样统一为【甲+乙】格局名 解析，不标类别。
+  function qimenPairRow(pair, name, note, level) {
+    const tag = level ? `<i class="qpp-tag ${qimenLevelClass[level] || 'ping'}">${level}</i>` : '';
+    return `<div class="qpp-row is-pair"><span class="qpp-v">【${escapeAttr(pair)}】${escapeAttr(name)}${tag}</span>${note ? `<span class="qpp-t">${escapeAttr(note)}</span>` : ''}</div>`;
   }
-  function qimenKeChengRow(kind, up, down) {
+  function qimenKeChengRow(up, down) {
     const kc = up && down ? qimenKeCheng[`${up}${down}`] : null;
-    if (!kc) return '';
-    return `<div class="qpp-row"><span class="qpp-k">${kind}</span><span class="qpp-v">【${up}+${down}】${kc[0]}<i class="qpp-tag ${qimenLevelClass[kc[2]] || 'ping'}">${kc[2]}</i></span><span class="qpp-t">${escapeAttr(kc[1])}</span></div>`;
+    return kc ? qimenPairRow(`${up}+${down}`, kc[0], kc[1], kc[2]) : '';
+  }
+  // 门星、门神无传世格名：门星按五行生克定名，门神按神性定名，吉凶由门之吉凶与关系相配。
+  const qimenStarRel = {
+    星生门: ['星生门', '天时来助人和，得贵人扶持，事易成。'],
+    门生星: ['门生星', '人谋去助天时，出力多而见效迟。'],
+    门克星: ['门克星', '以人力制天时，强求可成，伤和气。'],
+    星克门: ['星克门', '天时不助人和，动则受阻，宜静守。'],
+    比和: ['门星同气', '门与星同一五行，天人相合，事体平稳。'],
+  };
+  // 凶门遇星生只是减凶，不为吉；吉门遇星克亦打折，不为凶。
+  const qimenRelLevel = { 星生门: ['吉', '平'], 门生星: ['平', '平'], 门克星: ['平', '平'], 星克门: ['平', '凶'], 比和: ['吉', '凶'] };
+  function qimenStarRelation(door, star) {
+    const d = doorElement[door]; const s = starElement[star];
+    if (!d || !s) return null;
+    const rel = d === s ? '比和' : generates[s] === d ? '星生门' : generates[d] === s ? '门生星' : beats(d, s) ? '门克星' : '星克门';
+    const dl = qimenDoorLevel[door];
+    if (!dl) return null;
+    const level = dl === '平' ? '平' : qimenRelLevel[rel][dl === '吉' ? 0 : 1];
+    return { name: qimenStarRel[rel][0], note: qimenStarRel[rel][1], level };
+  }
+  function qimenGodPair(door, god) {
+    const nat = qimenGodNature[god]; const dl = qimenDoorLevel[door];
+    if (!nat || !dl) return null;
+    const nature = nat[0]; const gl = nat[1];
+    const level = dl === '吉' && gl === '吉' ? '吉' : dl === '凶' && gl === '凶' ? '凶' : '平';
+    const note = level === '吉' ? `吉神${nature}临吉门，谋为得贵人暗扶。`
+      : level === '凶' ? `凶神${nature}临凶门，事多阻逆，防小人。`
+      : dl === '吉' ? `${nature}之神临吉门，吉中有扰，宜防暗损。`
+      : gl === '吉' ? `${nature}之神临凶门，凶中带救，可缓图。`
+      : `${nature}之神，神性平和，吉凶随门而定。`;
+    return { name: `${nature}之神`, note, level };
   }
   function qimenPalaceRows(p) {
-    const rows = [];
-    [
-      qimenKeChengRow('十干克应', p.heaven, p.earth),
-      qimenKeChengRow('天盘寄', p.extra, p.earth),
-      qimenKeChengRow('地盘寄', p.heaven, p.extraEarth),
-    ].forEach(row => { if (row) rows.push(row); });
-    if (p.door) rows.push(qimenRow('门宫', `${p.door}临${p.name}宫 · ${p.doorState || '—'}`, doorStateNote[p.doorState] || ''));
-    if (p.star) rows.push(qimenRow('星宫', `${p.star}临${p.name}宫 · ${p.starState || '—'}`, starStateNote[p.starState] || ''));
-    const branches = palaceBranches[p.key] || [];
-    if (qimenJiXing[p.heaven] === p.key) rows.push(qimenRow('击刑', `${p.heaven}落${p.name}宫 · 六仪击刑`, '主刑伤、官讼、内耗。'));
-    if (qimenRuMu[p.heaven] === p.key) rows.push(qimenRow('入墓', `${p.heaven}奇落${p.name}宫`, '吉事不显，凶事难解。'));
-    const kong = (qimenMeta.kongWang || '').split('').filter(ch => branches.includes(ch));
-    if (kong.length) rows.push(qimenRow('空亡', `${p.name}宫 ${branches.join('')} 逢空`, '空则事虚，宜待时。'));
-    if (qimenMeta.horse && branches.includes(qimenMeta.horse)) rows.push(qimenRow('马星', `马星在${p.name}宫`, '主动、主远行、主变动。'));
-    if (p.star && p.star === qimenMeta.zhiFu) rows.push(qimenRow('值符', `值符星${p.star}落本宫`, '全盘主事之神。'));
-    if (p.door && p.door === qimenMeta.zhiShi) rows.push(qimenRow('值使', `值使门${p.door}落本宫`, '全盘执行之门。'));
-    if (starHome[p.star] === p.key || doorHome[p.door] === p.key) rows.push(qimenRow('伏吟', '星或门仍在本宫', '伏吟主静、主迟。'));
-    if (palaceOpposite[starHome[p.star]] === p.key || palaceOpposite[doorHome[p.door]] === p.key) rows.push(qimenRow('反吟', '星或门落对宫', '反吟主动、主反复。'));
-    return rows;
+    const rows = [
+      qimenKeChengRow(p.heaven, p.earth),
+      qimenKeChengRow(p.extra, p.earth),
+      qimenKeChengRow(p.heaven, p.extraEarth),
+    ];
+    if (p.door && p.heaven && qimenDoorStem[p.door]?.[p.heaven]) {
+      rows.push(qimenPairRow(`${p.door}+${p.heaven}`, qimenDoorStem[p.door][p.heaven]));
+    }
+    const starRel = p.door && p.star ? qimenStarRelation(p.door, p.star) : null;
+    if (starRel) rows.push(qimenPairRow(`${p.door}+${p.star}`, starRel.name, starRel.note, starRel.level));
+    const godPair = p.door && p.deity ? qimenGodPair(p.door, p.deity) : null;
+    if (godPair) rows.push(qimenPairRow(`${p.door}+${p.deity}`, godPair.name, godPair.note, godPair.level));
+    return rows.filter(Boolean);
   }
   function qimenPatternHtml(p) {
     const head = `<div class="qpp-head"><b>${p.name}${p.number}宫</b><i>${palaceElement[p.key] || '土'}</i><button class="qpp-close" data-qpp-close type="button" aria-label="关闭">×</button></div>`;
-    if (p.key === 'center') return `${head}<div class="qpp-sub">中宫无门无星，天禽寄坤二宫，地盘干寄坤。</div>`;
-    const sub = `${p.deity || '—'} · ${p.star || '—'}${p.starState ? `（${p.starState}）` : ''} · ${p.door || '—'}${p.doorState ? `（${p.doorState}）` : ''}`;
+    if (p.key === 'center') {
+      const rows = qimenChartPatterns().map(x => `<div class="qpp-row"><span class="qpp-k">${x.level}格</span><span class="qpp-v">${x.name}</span><span class="qpp-t">${escapeAttr(x.note)}</span></div>`).join('');
+      return `${head}<div class="qpp-sub">中宫无门无星，天禽寄坤二宫，地盘干寄坤。</div><div class="qpp-body">${rows || '<div class="qpp-empty">本局无整盘特殊格局。</div>'}</div>`;
+    }
+    const sub = [p.deity, p.star, p.door].filter(Boolean).join(' · ') || '—';
     const stems = `天盘 ${p.heaven || '—'}　地盘 ${p.earth || '—'}${p.extra ? `　天盘寄 ${p.extra}` : ''}${p.extraEarth ? `　地盘寄 ${p.extraEarth}` : ''}`;
     const rows = qimenPalaceRows(p).join('');
     return `${head}<div class="qpp-sub">${escapeAttr(sub)}</div><div class="qpp-stems">${escapeAttr(stems)}</div><div class="qpp-body">${rows || '<div class="qpp-empty">本宫无特殊格局。</div>'}</div>`;
@@ -1452,7 +1559,10 @@
       const id = `qimen.palace.${p.key}`;
       const label = `${p.name}${p.number}宫`;
       if (p.key === 'center') {
-        return `<div ${nodeAttrs(id,label,'奇门宫位')} class="anchor-node qimen-cell center-cell" data-element-id="${id}" data-label="${label}"><div class="motion-surface" data-motion-surface>${emblem}</div></div>`;
+        // 中宫落整盘格局：只列名称，凶朱吉金；断语在双击面板里。
+        const names = qimenChartPatterns().map(x => `<span class="qimen-pattern-name ${x.level === '吉' ? 'is-ji' : 'is-xiong'}" title="${escapeAttr(x.note)}">${x.name}</span>`).join('');
+        const patterns = names ? `<div class="qimen-chart-patterns">${names}</div>` : '';
+        return `<div ${nodeAttrs(id,label,'奇门宫位')} class="anchor-node qimen-cell center-cell" data-element-id="${id}" data-label="${label}"><div class="motion-surface" data-motion-surface>${emblem}${patterns}</div></div>`;
       }
       const core = field(p,'deity',p.deity,deityOptions,null,'八神')
         + field(p,'star',p.star,starOptions,'starState','九星')

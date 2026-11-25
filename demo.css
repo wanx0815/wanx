@@ -1345,6 +1345,9 @@ html[data-chrome="dark"] .palette-name::placeholder { color: #7f93a8; }
 .qpp-stems { margin-top: 4px; color: var(--muted); letter-spacing: .5px; }
 .qpp-body { margin-top: 10px; display: flex; flex-direction: column; gap: 9px; }
 .qpp-row { display: grid; grid-template-columns: 56px 1fr; gap: 2px 8px; }
+/* 克应行不带类别列，整行即【甲+乙】格名 解析 */
+.qpp-row.is-pair { grid-template-columns: 1fr; }
+.qpp-row.is-pair .qpp-t { grid-column: 1; }
 .qpp-k { color: var(--gold-soft); font-size: 11px; letter-spacing: 1px; white-space: nowrap; }
 .qpp-v { color: var(--ink, var(--text)); }
 .qpp-t { grid-column: 2; color: var(--muted); font-size: 11px; line-height: 1.5; }
