@@ -905,8 +905,8 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
 .liuren-design .seal { position: absolute; right: 4px; bottom: 4px; width: 42px; height: 42px; border: 2px solid rgba(168,63,47,.7); color: rgba(168,63,47,.8); display: grid; place-items: center; font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 17px; transform: rotate(-6deg); }
 
 /* design71 chart inside app board */
-/* --ll-k：三传四课整体缩放（字号与间距同一比例），电脑端 0.9，手机端在下面的媒体块里改成 0.8 */
-.liuren-chart { position: relative; width: 560px; height: 560px; margin: 0 auto; --ll-k: .9; font-family: "Noto Serif SC","华文宋体",serif; color: #232420; }
+/* --ll-k：三传四课整体缩放（字号与间距同一比例），电脑端 1.1，手机端在下面的媒体块里改成 1.2 */
+.liuren-chart { position: relative; width: 560px; height: 560px; margin: 0 auto; --ll-k: 1.1; font-family: "Noto Serif SC","华文宋体",serif; color: #232420; }
 .liuren-chart .top-band { position: absolute; left: 0; top: 0; width: 560px; height: 168px; border-bottom: 1px solid rgba(35,36,32,.17); }
 .liuren-chart .pass-vertical { position: absolute; left: 60px; top: 0; width: 300px; height: 168px; padding: 12px 12px 0 45px; border-right: 1px solid rgba(35,36,32,.17); }
 .liuren-chart .pass-vrow { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); gap: 1px; align-items: center; height: 52px; font-family: "Noto Serif SC","华文宋体",serif; font-size: calc(14.5px * var(--ll-k)); }
@@ -1036,7 +1036,7 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   [data-element-id="qimen.palace.kun"] .qimen-horse-slot,
   [data-element-id="qimen.palace.qian"] .qimen-horse-slot { left: auto; right: 2px; transform: none; }
   .stage-board, .stage-board-slot { overflow: visible; }
-  .liuren-chart { transform-origin: top left; margin-left: 0 !important; --ll-k: .8; }
+  .liuren-chart { transform-origin: top left; margin-left: 0 !important; --ll-k: 1.2; }
   .nav-rail .template-tab { width: auto; height: 44px; padding: 0; align-items: center; justify-content: center; }
   .nav-rail .tab-cn { writing-mode: horizontal-tb; font-size: 12px; letter-spacing: 2px; }
   .nav-rail .template-tab.active::before { left: 24%; right: 24%; top: auto; bottom: -1px; width: auto; height: 2px; }
