@@ -1924,7 +1924,7 @@
       <div class="note" style="color:#8b918b">点击这一行开始写……</div>
       <div class="seal">批</div>
     </div>`;
-    const svg = `<svg viewBox="0 0 560 248" fill="none"><g stroke="rgba(35,36,32,.38)" stroke-width=".9" stroke-linecap="round"><path d="M-6 0.9 C 90 0.5, 200 1.5, 290 0.7 S 480 1.3, 566 0.9"/><path d="M-6 124 C 90 125, 200 123, 290 124.5 S 480 124, 566 124.5"/><path d="M-6 248 C 90 247, 200 249, 290 247.5 S 480 248.5, 566 248"/><path d="M0 -6 C -1 80, 1 170, -0.5 250 S 0.5 290, 0 260"/><path d="M93.3 -6 C 92.3 80, 94.3 180, 92.8 280"/><path d="M186.7 -6 C 187.7 80, 185.7 180, 187.2 280"/><path d="M280 -6 C 279 80, 281 180, 279.5 280"/><path d="M373.3 -6 C 374.3 80, 372.3 180, 373.8 280"/><path d="M466.7 -6 C 465.7 80, 467.7 180, 466.2 280"/><path d="M560 -6 C 559 80, 561 180, 559.5 280"/></g></svg>`;
+    const svg = `<svg viewBox="0 0 560 248" fill="none"><g stroke="rgba(35,36,32,.38)" stroke-width=".9" stroke-linecap="round"><path d="M-6 0.7 C 90 0.55, 200 0.95, 290 0.6 S 480 0.85, 566 0.7"/><path d="M-6 124 C 90 125, 200 123, 290 124.5 S 480 124, 566 124.5"/><path d="M-6 248 C 90 247, 200 249, 290 247.5 S 480 248.5, 566 248"/><path d="M0 -6 C -1 80, 1 170, -0.5 250 S 0.5 290, 0 260"/><path d="M93.3 -6 C 92.3 80, 94.3 180, 92.8 280"/><path d="M186.7 -6 C 187.7 80, 185.7 180, 187.2 280"/><path d="M280 -6 C 279 80, 281 180, 279.5 280"/><path d="M373.3 -6 C 374.3 80, 372.3 180, 373.8 280"/><path d="M466.7 -6 C 465.7 80, 467.7 180, 466.2 280"/><path d="M560 -6 C 559 80, 561 180, 559.5 280"/></g></svg>`;
     setMarginLiuren();
     function setMarginLiuren() {
       const solar = document.getElementById("inkSolar"); if (solar) solar.textContent = liurenMeta.solar;

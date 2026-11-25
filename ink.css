@@ -710,7 +710,7 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
     position: relative; left: auto; top: auto;
     width: 100%; height: auto; min-height: 100dvh;
     transform: none; overflow: visible;
-    padding-bottom: 92px;
+    padding-bottom: 24px;
   }
   .design-canvas::before { height: 46%; opacity: .1; }
   .bamboo-corner { width: 150px; height: 130px; top: 36px; right: -34px; opacity: .16; }
@@ -746,6 +746,11 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
     margin: 10px 16px 0;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--line);
+    /* 日期在左、年月日时四柱缩到右侧同一行 */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 14px;
+    align-items: start;
   }
   .stage-column {
     order: 2;
@@ -760,37 +765,35 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
     order: 3;
     flex: 0 0 auto;
     margin: 14px 16px 0;
-    padding-bottom: 110px;
+    padding-bottom: 24px;
     position: relative;
     display: flex; flex-direction: column;
     min-height: 0;
   }
-  .m-head { align-items: flex-start; }
+  .m-head { grid-column: 1; grid-row: 1; }
+  .m-tag { display: none; }
   .m-date b { font-size: 13px; }
   .m-date span { font-size: 10px; }
-  .m-pillars { margin-top: 8px; padding: 8px 0; }
-  .pil b, .pil i { font-size: 22px; }
-  .m-facts { font-size: 10px; gap: 4px 12px; }
+  .m-pillars {
+    grid-column: 2; grid-row: 1;
+    gap: clamp(9px, 4.6vw, 18px); margin: 0; padding: 0; border: 0;
+  }
+  .pil { gap: 1px; }
+  .pil span { font-size: 8px; letter-spacing: 0; }
+  .pil b, .pil i { font-size: clamp(17px, 5.65vw, 22px); line-height: 1.2; }
+  .m-facts { grid-column: 1 / -1; grid-row: 2; font-size: 10px; gap: 4px 12px; }
+  /* 命造：干支已由盘面本身承担，手机端同样去掉四柱与信息区 */
+  .app-shell:has(.stage-surface.template-bazi) .margin-head .m-pillars,
+  .app-shell:has(.stage-surface.template-bazi) .margin-head .m-facts { display: none; }
   .m-notes-head { margin-top: 0; }
   .m-notes { min-height: 180px; padding-bottom: 20px; overflow: visible; }
   .note-line { font-size: 12px; min-height: 31px; }
   .m-seal { right: 0; bottom: 0; width: 32px; height: 32px; font-size: 13px; }
   .ink-rule { display: none; }
 
-  .dock {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    width: auto; height: 64px;
-    margin: 0; padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-    background: rgba(246, 241, 230, .94);
-    border-top: 1px solid var(--line);
-    backdrop-filter: blur(12px);
-    z-index: 60;
-  }
-  .dock-q label { display: none; }
-  .dock-q input { font-size: 11px; }
-  .dock-brushes { gap: 7px; }
-  .brush-dot i { width: 13px; height: 13px; }
-  .dock-status { display: none; }
+  /* 手机端不显示底部设置横条（动效笔刷 + 五行色开关） */
+  .dock { display: none !important; }
+  .dock-q, .dock-status { display: none; }
 
   .control-panel {
     left: 0; right: 0; bottom: 0; top: auto;
@@ -812,7 +815,7 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
     display: flex; pointer-events: none;
   }
   .case-drawer.open { transform: none; pointer-events: auto; }
-  .toast { bottom: 86px; }
+  .toast { bottom: 24px; }
 }
 
 
@@ -902,25 +905,27 @@ body.sheet-open .sheet-scrim { opacity: 1; pointer-events: auto; }
 .liuren-design .seal { position: absolute; right: 4px; bottom: 4px; width: 42px; height: 42px; border: 2px solid rgba(168,63,47,.7); color: rgba(168,63,47,.8); display: grid; place-items: center; font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 17px; transform: rotate(-6deg); }
 
 /* design71 chart inside app board */
-.liuren-chart { position: relative; width: 560px; height: 560px; margin: 0 auto; font-family: "Noto Serif SC","华文宋体",serif; color: #232420; }
+/* --ll-k：三传四课整体缩放（字号与间距同一比例），电脑端 0.9，手机端在下面的媒体块里改成 0.8 */
+.liuren-chart { position: relative; width: 560px; height: 560px; margin: 0 auto; --ll-k: .9; font-family: "Noto Serif SC","华文宋体",serif; color: #232420; }
 .liuren-chart .top-band { position: absolute; left: 0; top: 0; width: 560px; height: 168px; border-bottom: 1px solid rgba(35,36,32,.17); }
 .liuren-chart .pass-vertical { position: absolute; left: 60px; top: 0; width: 300px; height: 168px; padding: 12px 12px 0 45px; border-right: 1px solid rgba(35,36,32,.17); }
-.liuren-chart .pass-vrow { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); gap: 1px; align-items: center; height: 52px; font-family: "Noto Serif SC","华文宋体",serif; font-size: 14.5px; }
-.liuren-chart .pass-vrow em { font-style: normal; color: #5c615b; font-size: 14.5px; }
-.liuren-chart .pass-vrow strong { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-weight: 400; font-size: 16.2px; }
-.liuren-chart .pass-vrow .z { font-size: 26px; }
-.liuren-chart .pass-vrow .j { font-size: 17.8px; color: #5c615b; }
+.liuren-chart .pass-vrow { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.15fr) minmax(0,.85fr); gap: 1px; align-items: center; height: 52px; font-family: "Noto Serif SC","华文宋体",serif; font-size: calc(14.5px * var(--ll-k)); }
+.liuren-chart .pass-vrow em { font-style: normal; color: #5c615b; font-size: calc(14.5px * var(--ll-k)); }
+.liuren-chart .pass-vrow strong { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-weight: 400; font-size: calc(16.2px * var(--ll-k)); }
+.liuren-chart .pass-vrow .z { font-size: calc(26px * var(--ll-k)); }
+.liuren-chart .pass-vrow .j { font-size: calc(17.8px * var(--ll-k)); color: #5c615b; }
 .liuren-chart .title-block { position: absolute; left: 360px; top: 0; width: 200px; height: 168px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .liuren-chart .title-block em { font-style: normal; font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 19.44px; letter-spacing: 5px; }
 .liuren-chart .title-block span { font: 17.8px "Noto Serif SC","华文宋体",serif; color: #5c615b; }
 .liuren-chart .title-block .n { font: 10px "Noto Sans SC","Microsoft YaHei UI",sans-serif; color: #a83f2f; letter-spacing: 1px; }
 .liuren-chart .tseal { position: absolute; right: 4px; bottom: 6px; width: 22px; height: 22px; border: 1.5px solid rgba(168,63,47,.7); color: #a83f2f; display: grid; place-items: center; font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 12px; transform: rotate(-6deg); }
 .liuren-chart .lesson-band { position: absolute; left: 50%; transform: translateX(-50%); top: 180px; width: 440px; height: 120px; display: grid; grid-template-columns: repeat(4,1fr); }
-.liuren-chart .lesson { position: relative; padding: 0; border-left: 1px solid rgba(35,36,32,.1); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.liuren-chart .lesson { position: relative; padding: 0; border-left: 1px solid rgba(35,36,32,.1); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(10px * var(--ll-k)); }
 .liuren-chart .lesson:first-child { border-left: 0; }
-.liuren-chart .lesson .g { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 22.74px; color: #8b918b; line-height: 1; margin: 0; }
-.liuren-chart .lesson .h { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 22.74px; line-height: 1; margin: 0; }
-.liuren-chart .lesson .e { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: 22.74px; color: #5c615b; line-height: 1; margin: 0; }
+.liuren-chart .lesson .g { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: calc(22.74px * var(--ll-k)); color: #8b918b; line-height: 1; margin: 0; }
+.liuren-chart .lesson .h { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: calc(22.74px * var(--ll-k)); line-height: 1; margin: 0; }
+.liuren-chart .lesson .e { font-family: "方正清刻本悦宋简体","Noto Serif SC",serif; font-size: calc(22.74px * var(--ll-k)); color: #5c615b; line-height: 1; margin: 0; }
+.liuren-chart .pass-vrow, .liuren-chart .lesson { letter-spacing: calc(.16px * var(--ll-k)); }
 .liuren-chart .sky { position: absolute; left: 0; top: 312px; width: 560px; height: 248px; display: grid; grid-template-columns: repeat(6,1fr); grid-template-rows: repeat(2,1fr); }
 .liuren-chart .sky svg { position: absolute; left: 0; top: 0; width: 560px; height: 248px; overflow: visible; }
 .liuren-chart .cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: "Noto Serif SC","华文宋体",serif; }
@@ -988,11 +993,50 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
 
 /* 手机竖版：六壬盘按宽度缩放、上下堆叠 */
 @media (max-width: 900px) {
+  /* 列高一律交给内容撑：四柱与奇门自己给 viewport 一个定高方框，
+     否则 viewport→slot→board 逐层 100% 全部落在 auto 上，九宫塌成一条。 */
   .stage-column { height: auto !important; }
   .chart-tools { position: relative !important; left: auto !important; right: auto !important; top: auto !important; margin: 2px 0 10px; }
-  .stage-viewport { height: auto; overflow: hidden; }
+  .stage-column:has(.stage-surface.template-bazi) .stage-viewport,
+  .stage-column:has(.stage-surface.template-qimen) .stage-viewport { height: min(90vw, 430px); }
+  /* 六壬、梅花盘面自带高度，不必定高 */
+  .stage-column:has(.stage-surface.template-liuren) .stage-viewport,
+  .stage-column:has(.stage-surface.template-meihua) .stage-viewport { height: auto; overflow: hidden; }
+  /* 奇门盘的 16px 下移是给桌面画的，手机上会把九宫压到批注上，取消 */
+  .stage-column:has(.stage-surface.template-qimen) .stage-viewport { transform: none; }
+  /* 九宫离「所问何事」那一行留出纸面空隙，不然宫线上沿贴住问事框 */
+  .stage-column:has(.stage-surface.template-qimen) .chart-tools { margin-bottom: 18px; }
+  /* 井线原先按整列量，手机端盘面在列里下移了工具栏那一行，横线会切在宫中间；
+     改成按盘面方框定位：viewBox 比盘面四周各多 3.57% 的出血。 */
+  .stage-column:has(.stage-surface.template-qimen) .ink-exact-grid {
+    top: calc(100% - min(90vw, 430px) * 1.0357);
+    left: calc(min(90vw, 430px) * -0.0357);
+    width: calc(min(90vw, 430px) * 1.0714);
+    height: calc(min(90vw, 430px) * 1.0714);
+    transform: none;
+  }
+  /* 宫格缩到 117px 见方后，桌面那套 19.8/25.3px 字号与 8px 行距撑不下四行，按宫宽重算 */
+  .qimen-cell { padding: 8% 6% 6% !important; }
+  .qimen-board .qimen-cell .motion-surface { padding-top: 6px !important; }
+  .qimen-core { column-gap: 2px !important; row-gap: 2px !important; }
+  .qimen-deity { transform: translateY(-2px); }
+  .qimen-value,
+  .qimen-star .qimen-value, .qimen-door .qimen-value,
+  .qimen-heaven .qimen-value, .qimen-earth .qimen-value,
+  .qimen-ji .qimen-value, .qimen-deity .qimen-value {
+    font-size: clamp(12px, 4.6cqw, 20px) !important;
+    line-height: 1.1 !important;
+  }
+  .qimen-state { font-size: clamp(8px, 2.6cqw, 11px) !important; }
+  .qimen-he-slot, .qimen-chong-slot { font-size: 8px !important; }
+  /* 飞马按设计贴在宫格外侧，手机端左右两列会被推出纸外（x≈-14）看不见，收进宫格角内 */
+  .qimen-horse-slot { font-size: 19px; }
+  [data-element-id="qimen.palace.xun"] .qimen-horse-slot,
+  [data-element-id="qimen.palace.gen"] .qimen-horse-slot { right: auto; left: 2px; transform: none; }
+  [data-element-id="qimen.palace.kun"] .qimen-horse-slot,
+  [data-element-id="qimen.palace.qian"] .qimen-horse-slot { left: auto; right: 2px; transform: none; }
   .stage-board, .stage-board-slot { overflow: visible; }
-  .liuren-chart { transform-origin: top left; margin-left: 0 !important; }
+  .liuren-chart { transform-origin: top left; margin-left: 0 !important; --ll-k: .8; }
   .nav-rail .template-tab { width: auto; height: 44px; padding: 0; align-items: center; justify-content: center; }
   .nav-rail .tab-cn { writing-mode: horizontal-tb; font-size: 12px; letter-spacing: 2px; }
   .nav-rail .template-tab.active::before { left: 24%; right: 24%; top: auto; bottom: -1px; width: auto; height: 2px; }
