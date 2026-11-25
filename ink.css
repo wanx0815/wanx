@@ -999,6 +999,16 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   .chart-tools { position: relative !important; left: auto !important; right: auto !important; top: auto !important; margin: 2px 0 10px; }
   .stage-column:has(.stage-surface.template-bazi) .stage-viewport,
   .stage-column:has(.stage-surface.template-qimen) .stage-viewport { height: min(90vw, 430px); }
+  /* 排盘后「流年 / 大运 / 流月」三行挂在盘面下方，方框定高装不下，会压到批注上；
+     有运势条时整块按内容撑高（board-content 原本 absolute，不参与高度，需放回文档流）。 */
+  .stage-column:has(.stage-surface.template-bazi):has(.bazi-luck:not([hidden])) .stage-viewport,
+  .stage-column:has(.stage-surface.template-bazi):has(.bazi-luck:not([hidden])) .stage-board-slot,
+  .stage-column:has(.stage-surface.template-bazi):has(.bazi-luck:not([hidden])) .stage-board { height: auto !important; }
+  .stage-column:has(.stage-surface.template-bazi):has(.bazi-luck:not([hidden])) .stage-surface { height: auto !important; min-height: min(90vw, 430px); padding: 0 !important; }
+  .stage-column:has(.stage-surface.template-bazi):has(.bazi-luck:not([hidden])) .stage-surface .board-content { position: static !important; }
+  /* 手机版八字：所问之事到四柱表头原本空了 44px（工具条 10 + 盘面上边距 12 + 盘面内距 22），收紧一半 */
+  .stage-column:has(.stage-surface.template-bazi) .chart-tools { margin-bottom: 4px; }
+  .app-shell:has(.stage-surface.template-bazi) .bazi-board { margin-top: 4px; padding-top: 12px; }
   /* 六壬、梅花盘面自带高度，不必定高 */
   .stage-column:has(.stage-surface.template-liuren) .stage-viewport,
   .stage-column:has(.stage-surface.template-meihua) .stage-viewport { height: auto; overflow: hidden; }
@@ -1029,12 +1039,17 @@ html[data-theme="paper"] .topbar::before { display: none !important; }
   }
   .qimen-state { font-size: clamp(8px, 2.6cqw, 11px) !important; }
   .qimen-he-slot, .qimen-chong-slot { font-size: 8px !important; }
-  /* 飞马按设计贴在宫格外侧，手机端左右两列会被推出纸外（x≈-14）看不见，收进宫格角内 */
+  /* 飞马按设计贴在宫格外侧，手机端左右两列会被推出纸外（x≈-14）看不见。
+     横向留在宫角，纵向平移到宫格线外：压线可以，不能压空亡和宫内文字。 */
   .qimen-horse-slot { font-size: 19px; }
   [data-element-id="qimen.palace.xun"] .qimen-horse-slot,
   [data-element-id="qimen.palace.gen"] .qimen-horse-slot { right: auto; left: 2px; transform: none; }
   [data-element-id="qimen.palace.kun"] .qimen-horse-slot,
   [data-element-id="qimen.palace.qian"] .qimen-horse-slot { left: auto; right: 2px; transform: none; }
+  [data-element-id="qimen.palace.xun"] .qimen-horse-slot,
+  [data-element-id="qimen.palace.kun"] .qimen-horse-slot { top: -0.8em; bottom: auto; }
+  [data-element-id="qimen.palace.gen"] .qimen-horse-slot,
+  [data-element-id="qimen.palace.qian"] .qimen-horse-slot { bottom: -0.8em; top: auto; }
   .stage-board, .stage-board-slot { overflow: visible; }
   .liuren-chart { transform-origin: top left; margin-left: 0 !important; --ll-k: 1.2; }
   .nav-rail .template-tab { width: auto; height: 44px; padding: 0; align-items: center; justify-content: center; }
